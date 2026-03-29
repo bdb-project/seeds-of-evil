@@ -1,0 +1,4190 @@
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_COMPACT_GLOBALS=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $ZCODE_MAX_INLINE_STRING=9999
+!% $MAX_ABBREVS=96
+!========================================
+! The Seeds of Evil
+! Murray Shannon series 1 of 2
+! Copyright © 2026 Gianluca Girelli
+!========================================
+!Constant DEBUG;
+
+Abbreviate ". ";
+Abbreviate ", ";
+Abbreviate " the ";
+Abbreviate "You";
+Abbreviate "The";
+Abbreviate "It's";
+Abbreviate "ing";
+Abbreviate "you";
+Abbreviate "cassette";
+Abbreviate "and";
+Abbreviate "'ll have to tell me what to";
+Abbreviate "can't";
+Abbreviate "It might be easier to do that if";
+Abbreviate "alread";
+Abbreviate " th";
+Abbreviate " lo";
+Abbreviate " to";
+Abbreviate "'s no";
+Abbreviate "can";
+Abbreviate "ead";
+Abbreviate " an";
+Abbreviate "'t know wh";
+Abbreviate " in";
+Abbreviate " it";
+Abbreviate " of";
+Abbreviate "e s";
+Abbreviate " li";
+Abbreviate " with";
+Abbreviate "'d better";
+Abbreviate " mo";
+Abbreviate "e is";
+Abbreviate " ma";
+Abbreviate " wo";
+Abbreviate " di";
+Abbreviate "Creek Town";
+Abbreviate " pla";
+Abbreviate " do";
+Abbreviate " ho";
+Abbreviate "might";
+Abbreviate "e n";
+Abbreviate " ar";
+Abbreviate " ha";
+Abbreviate "ent";
+Abbreviate " on";
+Abbreviate " fa";
+Abbreviate " co";
+Abbreviate " po";
+Abbreviate " fro";
+Abbreviate " out";
+Abbreviate "ver";
+Abbreviate " bu";
+Abbreviate " larva";
+Abbreviate " about";
+Abbreviate " ro";
+Abbreviate " car";
+Abbreviate " east";
+Abbreviate " pr";
+Abbreviate " under";
+Abbreviate ".^^";
+Abbreviate "her";
+Abbreviate "'s ";
+Abbreviate "hat";
+Abbreviate "'t ";
+Abbreviate "nd ";
+Abbreviate "not";
+Abbreviate "start";
+Abbreviate "ome";
+Abbreviate "ight";
+Abbreviate "ave";
+Abbreviate "side";
+Abbreviate "car";
+Abbreviate "lose";
+Abbreviate "ow ";
+Abbreviate "on ";
+Abbreviate "ake";
+Abbreviate "is ";
+Abbreviate "ope";
+Abbreviate "but ";
+Abbreviate "nder";
+Abbreviate "It ";
+Abbreviate "str";
+Abbreviate "'re";
+Abbreviate "ine";
+Abbreviate "be ";
+Abbreviate "hen ";
+Abbreviate "as ";
+Abbreviate "int";
+Abbreviate "ive";
+Abbreviate "outskirt";
+Abbreviate "ould";
+Abbreviate "place";
+Abbreviate "spark plug";
+Abbreviate "ly ";
+Abbreviate "Not";
+Abbreviate "oor";
+Abbreviate "for";
+
+Constant Story "The Seeds of Evil";
+Constant Headline "^Murray Shannon series #1^Copyright (c) 2026 Gianluca Girelli^https://bdb-project.itch.io^Type ABOUT for further info and credits.^^";
+
+Array UUID_ARRAY string "UUID://6e74889a-ac68-4cbd-9c86-5014791b7830//";
+#Ifdef UUID_ARRAY;
+#Endif;
+
+Release 1;
+Serial "260115";
+
+!Inform 6 constants
+Constant DEATH_MENTION_UNDO;
+! Constant MAX_CARRIED = 10;
+Constant NO_SCORE;
+
+!PunyInform constants
+Constant CUSTOM_ABBREVIATIONS;
+Constant OPTIONAL_PRINT_SCENERY_CONTENTS;
+Constant OPTIONAL_EXTENDED_METAVERBS;
+Constant OPTIONAL_EXTENDED_VERBSET;
+Constant OPTIONAL_FULL_DIRECTIONS;
+Constant OPTIONAL_PROVIDE_UNDO;
+Constant RUNTIME_ERRORS 0;!0 for release, 2 for debug
+
+!PunyInform static messages
+Constant MSG_COMMENT_NO_TRANSCRIPT "Comment recorded. Use SCRIPT ON to save future comments in a transcript.^";
+Constant MSG_COMMENT_TRANSCRIPT "Comment recorded.^";
+Constant MSG_PARSER_NO_INPUT "You need to enter a command.";
+Constant MSG_PARSER_UNKNOWN_VERB "That's not a verb I recognise.";
+Constant MSG_SORRY_DEFAULT "Oh, don't apologise.";
+Constant MSG_WAIT_DEFAULT "Time passes...";
+
+!PunyInform dynamic messages
+Constant MSG_CLOSE_NOT_OPEN 1000;
+Constant MSG_LOCK_ALREADY_LOCKED 1001;
+Constant MSG_LOCK_CLOSE_FIRST 1002;
+Constant MSG_LOCK_KEY_DOESNT_FIT 1003;
+Constant MSG_UNLOCK_ALREADY_UNLOCKED 1004;
+Constant MSG_UNLOCK_KEY_DOESNT_FIT 1005;
+
+!Game-specific constants
+Constant ALREADY_DEAD " already dead, so don't waste your ammo.";
+Constant REVOLVER_IS_EMPTY "The revolver is empty.";
+Constant SEARCH_AGAIN "again, but don't find anything else of interest.";
+Constant TOO_HEAVY_TO_MOVE "It's too heavy for you to move.";
+Constant YOULL_HAVE_TO_EMPTY "You'll have to empty ";
+Constant YOULL_HAVE_TO_TELL_ME_WHAT_TO "You'll have to tell me what to ";
+
+!Replaced actions
+Replace _UpdateDarkness;
+Replace GoSub; !Delete if diagonal directions are used
+Replace LockSub;
+Replace UnlockSub;
+
+Property size 100;
+
+Include "globals.h";
+
+!Game-specific variables
+
+!========================================
+! Entry point routines
+!========================================
+[ LibraryMessages p_msg p_arg_1 p_arg_2;
+  switch (p_msg)
+  {
+    MSG_CLOSE_NOT_OPEN:
+      print_ret (CTheyreOrIts)noun, " already closed.";
+    MSG_LOCK_ALREADY_LOCKED:
+      print_ret (CTheyreOrIts)noun, " already locked.";
+    MSG_LOCK_CLOSE_FIRST:
+      "You'll have to close ", (ItOrThem)noun, " first.";
+    MSG_LOCK_KEY_DOESNT_FIT:
+      print_ret (The)second, " ", (DoesntOrDont)second, " fit the lock.";
+    MSG_UNLOCK_ALREADY_UNLOCKED:
+      print_ret (CTheyreOrIts)noun, " already unlocked.";
+    MSG_UNLOCK_KEY_DOESNT_FIT:
+      print_ret (The)second, " ", (DoesntOrDont)second, " fit the lock.";
+  }
+  p_arg_1 = p_arg_2;
+];
+
+[ PrintVerb word;
+  if (word == ',eject')
+  {
+    print "eject";
+    rtrue;
+  }
+  if (word == ',play')
+  {
+    print "play";
+    rtrue;
+  }
+  if (word == ',rewind')
+  {
+    print "rewind";
+    rtrue;
+  }
+  rfalse;
+];
+
+[ UnknownVerb word;
+  if (word == 'eject')
+    return ',eject';
+  if (word == 'play')
+    return ',play';
+  if (word == 'rewind')
+    return ',rewind';
+  return false;
+];
+
+Include "puny.h";
+
+!========================================
+! Initialisation
+!========================================
+[ Initialise;
+  lookmode = 2;
+! move CARRIED to player;
+  no_implicit_actions = true;
+  player.description = "You are Murray Shannon, and you just reached the small settlement of Creek Town in search of your cousin Alan. You need to fix your car, and then search for him.";
+  location = room28;
+  ! PROLOGUE
+  "^Quite unexpectedly, you received a telegram from your cousin Alan. A few years had passed since you last talked to him. It turns out that he now lives in Creek Town, a small settlement in the southern part of Louisiana. In his telegram, Alan warned about a looming danger so grave that it could affect thousands of people.^^Now Alan was known to have had mental health issues in the past, so you didn't know what to make of this. Worried about the health of the cousin you hadn't seen in a while, you decided to pack your bags and pay him a visit.^^As you approach the edge of town, your car develops electric problems and you are forced to stop at the local service station to get it seen to. You hope you can meet Alan while it is getting fixed and, in the meanwhile, uncover the truth about the looming danger that he alluded to.^";
+];
+
+!========================================
+! Classes
+!========================================
+Class Body
+with
+  life
+  [;
+    Ask:
+      "You're not likely to get an answer from a lifeless body.";
+    Attack, ThrowAt:
+      "Show some empathy. Allow the dead to rest in peace.";
+    Give:
+      "Dead bodies aren't normally in the habit of accepting gifts.";
+    Kiss:
+      "Eww, gross.";
+    Show:
+      "The dead body shows no interest in ", (the)noun, ". I wonder why.";
+    Talk:
+      "You strike up a one-sided conversation with the dead body, but it's bored to death.";
+    Tell:
+      "The corpse listens intently to what you have to say. Or maybe it's not listening at all. It's hard to tell.";
+    WakeOther:
+      "You give ", (the)noun, " a shake, but it doesn't respond.";
+  ],
+  before
+  [;
+    Pull, Push, Take:
+      "As far as you know, this is a crime scene. Try not to alter it any more than necessary.";
+  ],
+has animate;
+
+Class Liquid
+with
+  before
+  [;
+    Pour:
+      if (parent(self) notin player)
+      {
+        print "(first taking ", (the)parent(self), ")^";
+        move parent(self) to player;
+      }
+      if (parent(self) has container)
+        <<Empty (parent(self))>>;
+    Insert, PourT:
+      if (second == parent(self))
+        "The ", (name)self, " is already in ", (the)second, ".";
+      if (second in player)
+      {
+        print "(first dropping ", (the)second, ")^";
+        move second to location;
+      }
+      if (parent(self) notin player)
+      {
+        print "(first taking ", (the)parent(self), ")^";
+        move parent(self) to player;
+      }
+      if (second has container)
+        <<EmptyT (parent(self)) second>>;
+    Take:
+      print "You can't take ", (the)noun, " out of ", (the)parent(self), ", but you could ";
+      if (parent(self) has scenery or static)
+        "put it in a container.";
+      else
+        "pour it out or pour it onto something.";
+  ],
+has;
+
+Class ContainerForLiquids
+with
+  invent
+  [;
+    if (inventory_stage == 2 && (self hasnt transparent || child(self) == 0))
+      rtrue;
+  ],
+  before
+  [;
+    Empty:
+      if (child(self) == 0)
+        print_ret (The)self, " is already empty.";
+      noun = child(self);
+      remove noun;
+      "You empty ", (the)self, " and ", (the)noun, " soaks into the ground.";
+    EmptyT:
+      if (noun == second)
+        "You can't empty ", (the)self, " into itself.";
+      if (child(self) == 0)
+        print_ret (The)self, " is already empt
+        y.";
+      if (child(second) ~= 0)
+        print_ret (string)YOULL_HAVE_TO_EMPTY, (the)second, " first.";
+      if (second in player)
+      {
+        print "(first dropping ", (the)second, ")^";
+        move second to location;
+      }
+      if (self notin player)
+      {
+        print "(first getting ", (the)self, ")^";
+        move self to player;
+      }
+      move child(self) to second;
+      "You empty ", (the)self, " onto ", (the)second, ".";
+    Fill:
+      if (child(self) ~= 0)
+        print_ret (The)self, " already has something in it.";
+      if (second == nothing)
+        print_ret (string)YOULL_HAVE_TO_TELL_ME_WHAT_TO, "fill it with.";
+      if (second ofclass Liquid && TestScope(second))
+        <<EmptyT (parent(second)) self>>;
+      "You can only fill ", (the)self, " with liquids.";
+  ],
+has container open;
+
+Class OpenableContainer
+with
+  invent
+  [;
+    if (inventory_stage == 2 && (self hasnt open || child(self) == 0))
+      rtrue;
+  ],
+  before
+  [;
+    Receive:
+      if (noun.size >= self.size)
+        print_ret (The)noun, " won't fit in ", (the)self, ".";
+  ],
+has container openable;
+
+!========================================
+! Room 1: Vehicle Inspection Pit
+!========================================
+Object room01 "Vehicle Inspection Pit"
+with
+  description "You are now inside the narrow repair pit. Judging from the grease and the stains, the owner wasn't very fond of cleaning, but it's probably like this everywhere else in the world.",
+  u_to room02,
+  out_to room02,
+has light;
+
+!----------------------------------------
+! Grease and stain
+!----------------------------------------
+Object grease "grease" room01
+with
+  name 'grease' 'stain',
+  description "It's the product of countless hours of work repairing cars and the like.",
+  before
+  [;
+    Touch:
+      "You'd better not, as you don't have anything to clean yourself with.";
+    Smell:
+      "It smells like burned oil.";
+  ],
+has scenery;
+
+!----------------------------------------
+! Vehicle inspection pit
+!----------------------------------------
+Object pit "vehicle inspection pit" !room01
+with
+  name 'narrow' 'repair' 'vehicle' 'inspection' 'service' 'pit' 'sunken' 'area',
+  description "It's a narrow sunken area to allow access to a vehicle's underside to grease or repair it.",
+  before
+  [;
+    Enter:
+      if (self in room02)
+        <<Go FAKE_IN_OBJ>>;
+    Exit:
+      if (self in room01)
+        <<Go FAKE_OUT_OBJ>>;
+  ],
+  found_in room01 room02,
+has scenery;
+
+!----------------------------------------
+! Can of WD-40
+!----------------------------------------
+Object wd40 "can of WD-40" room01
+with
+  parse_name
+  [ i;
+    while (NextWord() == 'can' or 'of' or 'wd-40' or 'wd40' or 'wd' or 'spray' or 'nozzle' or 'lubricant' or 'oil' or 'instruction' or 'instructions//p')
+      i++;
+    return i;
+  ],
+  description "It's a small blue and yellow can with a spray nozzle. You can use it to moisten or lubricate almost anything. Also, spraying it on rusty metal parts will help you to unscrew them.",
+  before
+  [;
+    Read:
+      <<Examine self>>;
+  ],
+has;
+
+!========================================
+! Room 2: Service Station
+!========================================
+Object room02 "Service Station"
+with
+  description "The small service station is very quiet and, looking in one corner, you realise why. A corpse lies on the ground in the dim light and from the bad smell you would say that it has been there for at least two days. You can also see a service pit, going down in the ground. When you are done here you can exit by going west.",
+  w_to room03,
+  d_to room01,
+  in_to room01,
+  before
+  [;
+    Smell:
+      "The smell inside the service station is revolting. You'd better hurry and go back out, if you don't want to throw up.";
+  ],
+has light;
+
+!----------------------------------------
+! Nelson's body
+!----------------------------------------
+Object nelson "man's body" room02
+class Body
+with
+  article "a",
+  parse_name
+  [ i;
+    while (NextWord() == 'mechanic' or 'dead' or 'body' or 'nelson' or 'nelson^s' or 'corpse' or 'man' or 'lifeless' or 'smelly' or 'heap')
+      i++;
+    return i;
+  ],
+  description "The man probably was the mechanic, and owner of the service station. He looks like a typical hard-working guy but, unfortunately, his working days are over, as he's crumpled in a lifeless and smelly heap on the floor. The name tag on his suit says 'Nelson'.",
+  before
+  [;
+    Search:
+      print "You search the man's pockets ";
+      if (self hasnt general)
+      {
+        !move screwdriver to location;
+        !scope_modified = true;
+        give self general;
+        "but you don't find anything useful.";
+      }
+      print_ret (string)SEARCH_AGAIN;
+    Shoot:
+      "He hasn't done anything to you. Besides, he's already dead.";
+  ],
+has animate; ! proper;
+
+!----------------------------------------
+! name tag
+!----------------------------------------
+Object name_tag "name tag" room02
+with
+	name 'name' 'tag',
+	description	"It's just a name tag, with 'Nelson' written on it.",
+  before
+  [;
+    Read:
+      "Nelson";
+  ]
+has scenery;
+
+!----------------------------------------
+! suit
+!----------------------------------------
+Object suit "suit" room02
+with
+	name 'suit',
+	description	"It's the suit the Nelson is wearing.",
+  before
+  [;
+    Take:
+      "Please show some respect. Besides, you wouldn't know what to do with it.";
+  ]
+has scenery;
+
+!----------------------------------------
+! screwdriver
+!----------------------------------------
+Object screwdriver "screwdriver"
+with
+	name 'screwdriver',
+	description	"It's a metallic screwdriver. You can obviously unscrew things, with it.",
+has;
+
+!========================================
+! Room 3: In Front of Service Station
+!========================================
+Object room03 "In Front of Service Station"
+with
+  description "You find yourself in front of a small service station. An old van is parked in one of the stalls. From here you can go east inside the station, or north. You can also go west, towards your car.",
+  n_to room06,
+  s_to "You came from the south, so there's no point to venturing back that way. You need to find your cousin, first.",
+  e_to room02,
+  w_to room04,
+has light;
+
+!----------------------------------------
+! Environment (floating object)
+!----------------------------------------
+Object environment "environment"
+with
+  name 'environment' 'desolation' 'anguish' 'loneliness',
+  description
+  [;
+    "You look around, but you only sense desolation, anguish and loneliness.";
+  ],
+  each_turn
+  [;
+    switch (random(50))
+    {
+      1: print_ret (italic)"^A crow flies high in the sky. It may have spotted something to feed on.";
+      5: print_ret (italic)"^You feel the tension growing between your shoulder blades. You try to relax, but you can't.";
+      10: print_ret (italic)"^A cloud of insects hovers briefly in the air, then flies off.";
+      15: print_ret (italic)"^The silence of the town is unnerving.";
+      20: print_ret (italic)"^You think you heard a voice in the distance, but you don't know whether it's real or just your imagination.";
+      25: print_ret (italic)"^You think you sense a presence behind you, but when you turn you see nothing.";
+      30: print_ret (italic)"^The anguish painfully assails you for a moment, then you get hold of yourself again.";
+      35: print_ret (italic)"^You feel a trickle of perspiration running down your back. This place gives you the shivers.";
+      40: print_ret (italic)"^Some sort of bug skitters across the ground in front of you, then it's gone.";
+      45: print_ret (italic)"^A gust of wind reaches you, carrying the smell of death. Then it's gone.";
+    }
+  ],
+  found_in room03 room04 room06 room10 room14 room18 room20 room24 room26 room29 room30,
+has scenery;
+
+!----------------------------------------
+! gas pump
+!----------------------------------------
+Object gas_pump "gas pump" room03
+	with
+    article "a",
+		name 'gas' 'petrol' 'pump',
+		description
+			[;
+			  "It's an old-style gas pump, with analog dials to show the quantity of fuel delivered and the total amount due. There is a sign on it. ";
+			],
+			before
+			[;
+			  Read:
+          "Out of Order";
+			],
+	has static;
+
+!----------------------------------------
+! dials on pump
+!----------------------------------------
+Object dials "dials" room03
+with
+	name 'dial' 'dials' 'analog' 'analogue',
+	description	"The dials show the amount of fuel delivered and the total sum to be payed.",
+  before
+  [;
+    Read:
+      "They are hardly readable.";
+    Rub:
+      "You rub the dials, but can't make out the numbers. Since you have no need for this, you decide not to bother with it any more.";
+  ],
+has scenery;
+
+!----------------------------------------
+! sign on pump
+!----------------------------------------
+Object sign "sign" room03
+with
+	name 'sign',
+	description	"It's a sheet of paper with writing on it.",
+  before
+  [;
+    Read:
+      "It says, 'Out of order'.";
+  ],
+has scenery;
+
+!----------------------------------------
+! parking stalls
+!----------------------------------------
+Object stalls "parking stalls" room03
+with
+	name 'parking' 'stall' 'stalls',
+	description	"There are just a couple of them, and one is already taken.",
+has scenery pluralname;
+
+!----------------------------------------
+! Van
+!----------------------------------------
+Object "van" room03
+with
+  article "an",
+  name 'old' 'van',
+  before
+  [;
+    Open:
+      "You don't have the key. Besides, it's so old that you doubt you'd find anything useful in it.";
+    Examine:
+      "An old van sits in the shade, rusting. ";
+    Search:
+      if (self hasnt general)
+      {
+        give self general;
+        "You search the van hoping to find a spark plug with no luck, so you leave it to its fate.";  
+      }
+      "You already searched the van and found nothing useful.";
+    Climb:
+      "What if you harm yourself in the process? Who would take care of your cousin, then?";
+  ],
+  !found_in room03 room04,
+has scenery supporter;
+
+!========================================
+! Room 04: Outside Your Car
+!========================================
+Object room04 "Outside Your Car"
+with
+  description "Your car is parked at the side of a lonely country road. As you were driving north before you pulled over, you can go north to the front of the car or south to the back of the car. The deserted service station forecourt lies to the east while you can go west to enter your car.",
+  n_to room29,
+  e_to room03,
+  s_to room30,
+  w_to room28,
+  in_to
+  [;
+    return room28;
+  ],
+has light;
+
+!----------------------------------------
+! Road (floating object)
+!----------------------------------------
+Object road "road"
+with
+  name 'country' 'road',
+  description "It's the country road that leads to Creek Town, and from it further north.",
+  found_in room03 room04 room29 room30,
+has scenery;
+
+!----------------------------------------
+! Service Station (floating object)
+!----------------------------------------
+Object service_station "service station"
+with
+  name 'service' 'station' 'forecourt',
+  description "The service station looks old and deserted. There's no one in sight.",
+  found_in room04 room03 room02 room01 room28 room29 room30,
+has scenery;
+
+!========================================
+! Room 28: In Your Car
+!========================================
+Object room28 "In Your Car"
+with
+  description
+  [;
+    print "You're inside your car in front of an old service station at the outskirts of a small town. ";
+    if (car has general)
+      print "The instruments are lit up and the engine is humming under the hood. A knob can be seen under the instrument panel.";
+    else
+      print "The instruments are dark and the engine is turned off. A knob can be seen under the instrument panel.";
+    " You feel an unreal silence around you, and the sense of anguish is overwhelming. The only exit is out.";
+  ],
+  e_to
+  [;
+    if (telegram has general) {
+      return room04;
+    }
+    else "You almost know it by heart, but you might want to read the telegram just one more time before proceeding.";
+  ],
+  out_to
+  [;
+    if (telegram has general) {
+      return room04;
+    }
+    else "You almost know it by heart, but you might want to read the telegram just one more time before proceeding.";
+  ],
+  before
+  [;
+    Listen:
+      "The silence is overwhelming.";
+  ],
+has light;
+
+!----------------------------------------
+! Your car
+!----------------------------------------
+Object car "car"
+with
+  name 'car',
+  description
+  [;
+    print "It's an old piece of junk, but it's served you well for a long time and you don't feel like buying a new one. Not just yet, at least.^";
+    if (self in room28)
+    {
+      if (car_key in ignition)
+        print "As the car key is in the ignition, just turn the key to start it.";
+      else
+        print "You'd better insert a key in the ignition if you want to start the car.";
+      " There's a knob under the instrument panel.";
+    }
+    if (self in room30)
+    {
+      print "The trunk is ";
+      if (trunk has open)
+        "open.";
+      else
+        "closed.";
+    }
+    if (self in room29)
+    {
+      print "The hood is ";
+      if (hood has open)
+        "open.";
+      else
+        "closed.";
+    }
+  ],
+  before
+  [;
+    Tie:
+      "If it just were so easy ...";
+    Drive:
+      if (self notin room28)
+        "It might be easier to do that if you're in the car.";
+      if (self hasnt general)
+        "You need to start the engine first.";
+      if (destroyed_equipment hasnt general)
+        "Your car is now in working condition again, but you still haven't dealt with the origin of the larvae, so there's something else to do before driving away in search of your cousin Alan.";
+      deadflag = 2;
+      "Now that your car works again, you head to the main road and quickly drive away. As soon as you leave Creek Town you start to feel better. However, you feel there is still a lot to do before Earth can finally be declared safe. Moreover, your cousin is still nowhere to be found but, while heading out of town, an idea comes to your mind. You used to be part of a group of ufologists and parapsychologists and although you considered them to be a little weird, they always kept the group informed of any inexplicable phenomena occurring, anywhere on Earth. What about exploiting this opportunity to keep searching for your cousin while trying to protect Earth? What about creating a special Research Society (against) Alien Threats? 'Re.S.A.T.' is not a bad name, after all.";
+    Enter:
+      if (self in room28)
+        "You're already in it.";
+      if (self in room04)
+        <<Go FAKE_IN_OBJ>>;
+      "You can't enter it from here.";
+    Exit:
+      if (self in room28)
+        <<Go FAKE_OUT_OBJ>>;
+      "You're already outside the car.";
+    Lock:
+      if (self notin room04)
+        "You can't lock it from here.";
+    SwitchOn:
+      if (self notin room01)
+        "It might be easier to do that if you're in the car.";
+      if (self has general)
+        "The engine is already running.";
+      print "If you're trying to start the engine, just ";
+      if (car_key notin ignition)
+        print "put the car key in the ignition and ";
+      "turn the key.";
+    SwitchOff:
+      if (self notin room28)
+        "It might be easier to do that if you're in the car.";
+      if (car hasnt general)
+        "The engine is already off.";
+      "If you're trying to stop the engine, just turn the key.";
+    Unlock:
+      if (self notin room04)
+        "You can't unlock it from here.";
+  ],
+  with_key car_key,
+  found_in room28 room29 room30 room03 room04,
+has lockable scenery container open;
+
+!----------------------------------------
+! V8 engine
+!----------------------------------------
+Object "V8 engine" room28
+with
+  name 'v8' 'engine',
+  description "You can't see it from here. It's under the hood.",
+  before
+  [;
+    SwitchOn:
+      <<SwitchOn car>>;
+    SwitchOff:
+      <<SwitchOff car>>;
+  ],
+has scenery;
+
+!----------------------------------------
+! Dashboard
+!----------------------------------------
+Object dashboard "dashboard" room28
+with
+  name 'dashboard' 'instrument' 'panel' 'instruments',
+  description "Steering wheel, ignition, knob under the instrument panel. Everything is where it should be.",
+has scenery;
+
+!----------------------------------------
+! Knob under dashboard
+!----------------------------------------
+Object knob "knob under dashboard" room28
+with
+  name 'knob' 'picture',
+  description "It has a little picture of a car with its hood open.",
+  before
+  [;
+    Pull:
+      if (hood hasnt locked)
+        "Nothing happens, because you've already popped the hood.";
+      give hood ~locked;
+      "You hear a loud bump and the car's hood pops up a few centimetres.";
+    Push:
+      if (hood has locked)
+        "Nothing happens because the hood is closed.";
+      "If you're trying to close the hood, you'll have to get out and do that manually.";
+    Turn:
+      "This knob can only be pulled.";
+  ],
+has scenery;
+
+!----------------------------------------
+! Steering wheel
+!----------------------------------------
+Object steering_wheel "steering wheel" room28
+with
+  name 'steering' 'wheel',
+  description "There is nothing special about the steering wheel. The ignition is beside it.",
+  before
+  [;
+    Turn:
+      "You can't turn the steering wheel while the car isn't moving. Wait until you're driving.";
+  ],
+has scenery;
+
+!----------------------------------------
+! Ignition
+!----------------------------------------
+Object ignition "ignition" room28
+with
+  name 'ignition',
+  description
+  [;
+    <<Search self>>;
+  ],
+  before
+  [;
+    Receive:
+      if (noun ~= car_key)
+        "Don't be silly. The only thing that will fit in the ignition is the car key.";
+  ],
+has container open scenery;
+
+!----------------------------------------
+! Car key
+!----------------------------------------
+Object car_key "car key" ignition
+with
+  parse_name
+  [ nw;
+    nw = NextWord();
+    if (nw == 'car')
+    {
+      if (NextWord() == 'key')
+        return 2;
+      if ((TestScope(car)) || (TestScope(big_car)))
+        return 0;
+      return 1;
+    }
+    if (nw == 'key')
+      return 1;
+    return 0;
+  ],
+  article "your",
+  description "It's the key to your old car.",
+  before
+  [;
+    Take:
+      if (self in ignition && car has general)
+        "You can't remove the car key while the engine's running. That's how it works.";
+    Turn:
+      if (self in ignition)
+      {
+        if (car has general)
+        {
+          give car ~general;
+          "You turn the engine off.";
+        }
+        if (working_plug in hood)
+        {
+          give car general;
+          print "With a loud noise, the car starts up. The big V8 purrs like a kitten. It's sweet music to your ears. ";
+          if (destroyed_equipment hasnt general)
+            "Your car is now in working condition again, but you still haven't dealt with the origin of the larvae, so there's something else to do before driving away in search of your cousin Alan.";
+          "Now let's drive out of here.";
+        }
+        if (spark_plug hasnt general)
+        {
+          give spark_plug general;
+          print "The starter motor gives a brief whir, then stops. You try again. ";
+        }
+        "You turn the key but nothing happens, so you try again. This time the engine starts up but it can't deliver the power as it should, then stops. Darn. Sounds like a spark plug problem.";
+      }
+      "You turn the key in your hand but, since it's not in the ignition, nothing happens.";
+  ],
+has;
+
+!----------------------------------------
+! Telegram
+!----------------------------------------
+Object telegram "telegram" room28 
+with
+  name 'telegram',
+  description
+  [;
+    print "It's the telegram you received yesterday from your cousin Alan. It's dated January 17th, 1987. ";
+    if (self hasnt general)
+    {
+	  "You already read it many times, but you cannot help reading it again.";
+	}
+    else
+      "Enough reading, already. It's time to act.";
+  ],
+  before
+  [;
+    Read:
+	    if (self in player)
+      { 
+        if (self hasnt general)
+        {
+	        print "You read through the telegram in haste one more time. Apparently, electrical interferences, strange noises and weird apparitions have been affecting Creek Town in the last few weeks. Some people were reported missing, many others left, so the town is mostly deserted. In particular, a few lines hit you like a stab in the heart.^^'COME TO CREEK TOWN STOP POSSIBLE THREAT TO THOUSANDS STOP I AM WAITING FOR YOU WITH ANXIETY STOP YOUR COUSIN ALAN STOP'^^You can't help wondering if your cousin's mental health has kept deteriorating through the years. Did you and your family overlook his needs? You should have been there for him, and you feel bad about it.^";
+		      give self general;
+		      rtrue;
+	      }
+        "You don't need to read it again. It's about time to find your cousin.";
+      }
+	    else "But you are not holding the telegram.";
+    Drop:
+      if (self in player)
+      {
+        if (location == room28)
+        {
+          move telegram to room28;
+          "You don't need ", (the)noun, " anymore, so you drop it inside your car.";
+        }
+        else
+        {
+          move telegram to location;
+          "You drop the telegram on the ground.";
+        }
+      }
+      else "But you are not holding the telegram!";
+  ],
+  size 2,
+has;
+
+!========================================
+! Room 29: In Front of Your Car
+!========================================
+Object room29 "In Front of Your Car"
+with
+  name 'front' 'car',
+  description "You're at the front of your car, looking over the hood. The only available directions are to the south or towards the east. Only bushes can be seen towards the west.",
+  e_to
+  [;
+    if (hood has open)
+      "You'd better close the hood first. You don't know who could come around.";
+    return room03;
+  ],
+  s_to
+  [;
+    if (hood has open)
+      "You'd better close the hood first. You don't know who could come around.";
+    return room04;
+  ],
+  n_to "You have no reason to go north.",
+  before
+  [;
+    Listen:
+      "The silence is overwhelming.";
+  ],
+has light;
+
+!----------------------------------------
+! Front of car
+!----------------------------------------
+Object front "front of your car"
+with
+  parse_name
+  [ nw i flag;
+    nw = NextWord();
+    while (nw == 'front' or 'of' or 'your' or 'car')
+    {
+      i++;
+      if (nw == 'car' && TestScope(car))
+        flag++;
+      nw = NextWord();
+    }
+    if (i == flag)
+      return 0;
+    return i;
+  ],
+  description
+  [;
+    "There's nothing special about it, except that it's old and ugly-looking. ";
+    !<<Search self>>;
+  ],
+  found_in room04 room29,
+has scenery;
+
+!----------------------------------------
+! Hood
+!----------------------------------------
+Object hood "hood" room29
+with
+  name 'bonnet' 'hood' 'hinged' 'cover' 'engine' 'bay',
+  description
+  [;
+    print "The hood covers the engine bay. ";
+    <<Search self>>;
+  ],
+  after
+  [;
+    Close:
+      give self locked;
+      "The hood clicks shut.";
+  ],
+has container lockable locked openable scenery;
+
+!----------------------------------------
+! Engine
+!----------------------------------------
+Object engine "V8 engine" hood
+with
+  name 'v8' 'engine',
+  description "It's your car's engine. It's an old V8 model, but it's still in good condition.",
+  before
+  [;
+    SwitchOff, SwitchOn:
+      "It might be easier to do that if you're in the car.";
+  ],
+has static;
+
+!----------------------------------------
+! Faulty spark plug
+!----------------------------------------
+Object spark_plug "faulty spark plug" hood
+with
+  !name 'old' 'faulty' 'spark' 'plug',
+  parse_name
+  [ nw;
+    nw = NextWord();
+    if (nw == 'faulty' || nw == 'broken')
+    {
+      nw = NextWord();
+      if (nw == 'plug')
+        return 2;
+      else 
+        if (nw == 'spark' && NextWord() == 'plug')
+          return 3;
+    }
+    if (nw == 'spark')
+      if (NextWord() == 'plug')
+        return 2;
+    if (nw == 'plug')
+      return 1;
+    return 0;
+  ],
+  description "It's a spark plug. It's not working any more and you need to replace it.",
+  before
+  [;
+    Remove, Replace, Take, Transfer:
+      if (working_plug in player)
+      {
+        if (pliers in player)
+        {
+          remove self;
+          move working_plug to hood;
+          "You remove the faulty spark plug and throw it into the bushes at the side of the road. You then insert the new one and attach the cable.";
+        }
+        "You don't have anything to unscrew the faulty plug.";
+      }
+      else
+      {
+        print "There's no point removing it and lugging it around with you until you've got a replacement. ";
+        if (pliers notin player)
+          print "Besides, you don't have anything to unscrew the faulty plug.";
+        "";
+      }
+    Spray:
+      "There's no need to.";  
+    Screw, Unscrew:
+      if (pliers notin player)
+        "You don't have anything suitable with you.";
+      if (working_plug notin player)
+        "There's no point removing it until you've got a replacement.";
+      remove self;
+      move working_plug to hood;
+      "You remove the faulty spark plug and throw it into the bushes at the side of the road. You then insert the new one and attach the terminals.";
+],
+has;
+
+!----------------------------------------
+! bushes (floating object)
+!----------------------------------------
+Object bushes "bushes"
+with 
+	name 'bush' 'bushes//p',
+	description
+	[;
+    "They grow wild on the side of the road, but there's nothing special about them.";
+	],
+  found_in room29 room30,
+has scenery;
+
+!========================================
+! Room 30: Behind Your Car
+!========================================
+Object room30 "Behind Your Car"
+with
+  description "You're at the rear of your car, looking over the trunk. The road continues to the north and south, while only bushes can be seen towards the west.",
+  s_to "It's miles to the nearest town. Besides, you need to reach your cousin first.",
+  n_to
+  [;
+    if (trunk has open)
+      "You may want to close the trunk first, since you don't know who loiters around here.";
+    return room04;
+  ],
+  e_to
+  [;
+    if (trunk has open)
+      "You may want to close the trunk first, since you don't know who loiters around here.";
+    return room03;
+  ],
+  before
+  [;
+    Listen:
+      "Only silence can be heard.";
+  ],
+has light;
+
+!----------------------------------------
+! Back of car
+!----------------------------------------
+Object back "back of your car"
+with
+  parse_name
+  [ nw i flag;
+    nw = NextWord();
+    while (nw == 'back' or 'rear' or 'of' or 'your' or 'car')
+    {
+      i++;
+      if (nw == 'car' && TestScope(car))
+        flag++;
+      nw = NextWord();
+    }
+    if (i == flag)
+      return 0;
+    return i;
+  ],
+  description
+  [;
+    "There's nothing special about it, except that it's dented and battered. ";
+    !<<Search self>>;
+  ],
+  found_in room04 room30,
+has scenery;
+
+!----------------------------------------
+! trunk
+!----------------------------------------
+Object trunk "trunk" room30
+with
+  name 'boot' 'trunk',
+  description
+  [;
+    print "It's a hinged cover over the storage compartment at the back of the car. ";
+    <<Search self>>;
+  ],
+  before
+  [;
+    Receive:
+      if (noun == car_key)
+        "If you close the key into the trunk you'll never leave this place any more.";
+  ],
+  after
+  [;
+    Close:
+      give self locked;
+      "The trunk clicks shut.";
+  ],
+  with_key car_key,
+has container lockable locked openable scenery;
+
+!----------------------------------------
+! Kerosene can
+!----------------------------------------
+Object can "kerosene can" trunk
+class ContainerForLiquids
+with
+  parse_name
+  [ nw i flag;
+    nw = NextWord();
+    while (nw == 'kerosene' or 'kero' or '5-litre' or '5//' or 'litre' or 'five-litre' or 'five' or 'jerry' or 'can' or 'tin' or 'of' or 'jerrycan')
+    {
+      i++;
+      if (nw == 'kerosene' or 'kero' && TestScope(kerosene))
+        flag++;
+      nw = NextWord();
+    }
+    if (i == flag)
+      return 0;
+    return i;
+  ],
+  description
+  [;
+    print "It's a 5-litre kerosene can.";
+    if (self in player)
+    {
+      print " Judging by the weight, it's ";
+      if (kerosene notin self)
+        print "empty.";
+      else
+        print "full.";
+    }
+    " There's a label on the can.";
+  ],
+  before
+  [;
+    Empty, EmptyT, PourT, Pour:
+      if (kerosene notin self)
+        "The kerosene can is empty.";
+      if (location ~= room05)
+        "Don't waste the kerosene. You might need it later.";
+      move kerosene to room05;
+      move revolver to room05;
+      move item05 to limbo;
+      give larva general;
+      StopDaemon(larva);
+      !move strange_substance to limbo;
+      !move dead_substance to room05;
+      print "You pour the kerosene over the larva which immediately retracts and, in a few seconds, stops pulsating. You can now see a revolver, that the larva was previously accidentally covering. "; 
+      <<Empty self>>;
+    Read:
+      <<Read label>>;
+    Receive:
+      "The can is intended for kerosene. You can't possibly put anything else into it.";
+    Smell:
+      if (kerosene in self)
+        "It smells like kerosene.";
+    Wave:
+      if (kerosene in self)
+        "You hear the kerosene splooshing around inside.";
+  ],
+  after
+  [;
+    Take:
+      if (kerosene in self)
+        "You hear something splooshing around inside the can when you pick it up.";
+  ],
+  size 6,
+  add_to_scope label,
+has container open;
+
+!----------------------------------------
+! Label on can
+!----------------------------------------
+Object label "label"  
+with
+  name 'instructions' 'label' 'warning' 'notes' 'note' 'hazards' 'risks',
+  description
+  [;
+    "It alert users to potential hazards and risks. ";
+  ],
+  before
+  [;
+    Read:
+	    "Among the rest, the label states: 'Keep out of reach of children', 'Do not disperse in the environment' and 'May pose a threat to living things'.";
+  ],
+  size 2,
+has scenery;
+
+!----------------------------------------
+! Kerosene
+!----------------------------------------
+Object kerosene "kerosene" can
+with
+  article "some",
+  name 'kerosene' 'kero',
+  description
+  [;
+    if (self in can)
+      "You can't see the kerosene while it's in the can, but you can certainly smell it.";
+    else
+      "It's spilled all over the place and apparently killed the creature.";
+  ],
+  before
+  [;
+    Pour, PourT, PutOn, Empty, EmptyT:
+      <<Empty can>>;
+    Take:
+      if (self in can)
+        "You can't take the kerosene out of the can, but you could empty the can if needed.";
+      "Don't be silly. You can't take the kerosene once it's been poured out.";
+    Smell:
+      "It has a sharp, and slightly sweet, distinctive odor.";
+  ],
+has static;
+
+!========================================
+! Room 5: Inside Post Office
+!========================================
+Object room05 "Inside Post Office"
+with
+  description [;
+    print "The inside of the post office is a mess. There are papers everywhere and dust that has blown in through the door. ";
+    if (kerosene in self)
+      "The larva has now gone dark.";
+    "Your eyes catch a strange substance that shines with a phosphorescent light. At a second glance, it looks like an insect larva, but it's much bigger in size.";
+  ],
+  w_to
+  [;
+    if (larva hasnt general)
+      StopDaemon(larva);
+    return room06;
+  ],
+  before
+  [;
+    Smell: 
+      if (kerosene in self)
+        "The distinctive, pungent, oily, chemical odor of the kerosene fills up your nostrils.";
+      "You only smell dust and decay.";
+  ]
+has light;
+
+!----------------------------------------
+! Post office (fake) door
+!----------------------------------------
+Object "door" room05
+with
+  name  'broken' 'door' 'opening',
+  description "It's broken and cannot be opened or closed.",
+has scenery;
+
+!----------------------------------------
+! Post office
+!----------------------------------------
+Object "post office" room05
+with
+  name 'post' 'office' 'mess',
+  description "There are letters and parcels everywhere, as if an intense struggle had happened here.",
+has scenery;
+
+!----------------------------------------
+! letters and parcels
+!----------------------------------------
+Object "letters and parcels" room05
+with
+  name 'letter' 'letters' 'parcel' 'parcels' 'packages' 'papers',
+  description "The mess testifies that an intense struggle happened here, but there's nothing special about the letters or the parcels.",
+has scenery pluralname;
+
+!----------------------------------------
+! Old sack
+!----------------------------------------
+Object sack "old sack" room05
+class OpenableContainer
+with  
+	article "an",
+  name 'old' 'sack',
+	description 
+	[;
+		print "It's one of those sacks postmen use to retrieve and carry letters around. There's a hole in the bottom. ";
+		<<Search self>>;
+	],
+  before 
+  [;
+    Take:
+      if (larva hasnt general)
+        "You can't take it while that strange substance is in the way.";
+    Open, Close:
+      if (larva hasnt general)
+        "You can't do anything to it while that strange substance is in the way.";
+    Receive:
+      if (noun ~= dog)
+        "Although you could do it, there's a hole in the sack, so you avoid putting that into it.";
+    Empty:
+      if (dog in sack)
+      {
+        if (player in room25)
+        {
+          StopDaemon(rats);
+          move dog to room25;
+          give rats general;
+          "You empty the sack dropping the dead dog on the ground, and then take a couple of steps back. The rats suddenly throw themselves on the animal's carcass and begin to devour it ravenously. You are now able to proceed eastwards.";
+        }
+        else
+        {
+          move dog to location;
+          "You empty the sack, dropping the dog to the ground.";
+        }
+      }
+      else "The sack is empty.";
+    Drop:
+      if (dog in sack)
+      {
+        if (player in room25)
+        {
+          StopDaemon(rats);
+          move sack to room25;
+          move dog to room25;
+          give rats general;
+          "You empty the sack dropping the dead dog on the ground, drop the sack itself and then take a couple of steps back. The rats suddenly throw themselves on the animal's carcass and begin to devour it ravenously. You are now able to proceed eastbound.";
+        }
+        else
+        {
+          move sack to location;
+          "You drop the sack to the ground.";
+        }
+      }
+      else 
+      {
+        move sack to location;
+        "You drop the sack to the ground.";
+      }
+  ],
+  add_to_scope hole,
+has container openable open;
+
+!----------------------------------------
+! Hole in sack
+!----------------------------------------
+Object hole "hole"
+with
+  name 'hole',
+  description "It's big enough to prevent the sack from containing small objects. However, bigger things may possibly be put inside it.",
+has scenery;
+
+!----------------------------------------
+! Larva
+!----------------------------------------
+Object larva "larva" room05
+with
+  parse_name
+  [ nw i;
+    nw = NextWord();
+    while ((nw == 'dead' && self has general) || (nw == 'insect' or 'larva' or 'strange' or 'substance'))
+    {
+      i++;
+      nw = NextWord();
+    }
+    return i;
+  ],
+  short_name
+  [;
+    if (self has general)
+      print "dead ";
+    rfalse;
+  ],
+  description
+  [;
+    print "It looks like an insect larva, but it's much bigger in size. ";
+    if (self hasnt general)
+      "It moves in a slow but aggressive way, so you'd better keep a distance.";
+    else
+      "The larva is now dead and seems crystallised. It no longer moves and doesn't shine any more.";
+  ],
+  life
+  [;
+    Attack:
+      if (self has general)
+        "There's no need to. It's dead already.";
+      "You cannot attack it directly. You need to think of something different.";
+  ],
+  before
+  [;
+    Take, Touch, Search:
+      "No way!";
+  ],
+  daemon
+  [;
+    self.time_left++;
+    if (self.time_left > 1)
+      print "^The larva";
+    switch (self.time_left)
+    {
+      2: " is creeping toward you. Be careful.";
+      3: " is now very close. It looks like you're about to get attacked.";
+      4: StopDaemon(self);
+        deadflag = 1;
+        " rises up like a huge snake and with lightning speed springs towards your face, sticking to your skin like glue. You soon die of suffocation, while your skin is melting down.";
+    }
+  ],
+  time_left 0,
+has animate neuter;
+
+!----------------------------------------
+! Luminous halo surrounding the strange substance
+!----------------------------------------
+Object item05 "light" room05
+with
+  name 'phosphorescent' 'light',
+  description "It has a weird appearance, and it gives the larva a sinister look.",
+has scenery;
+
+!----------------------------------------
+! Revolver
+!----------------------------------------
+Object revolver "revolver"
+with
+  name 'revolver' 'handgun' 'pistol' 'gun' 'guns//p' 'weapon' 'weapons//p' 'single-action' 'single' 'action' '45' 'calibre',
+  description
+  [;
+    print "It's a single-action revolver. It's currently ";
+    if (bullets.number == 0)
+      "empty.";
+    print "loaded with ", bullets.number, " bullet";
+    if (bullets.number > 1)
+      print "s";
+    ".";
+  ],
+  before
+  [;
+    Load:
+      "It's already loaded with ", bullets.number, " bullets and you don't have any more.";
+  ],
+  add_to_scope bullets,
+has;
+
+!----------------------------------------
+! Bullets
+!----------------------------------------
+Object bullets "bullets"
+with
+  name 'bullet' 'bullets' 'ammo',
+  description
+  [;
+    if (self.number == 0)
+      print_ret (string)REVOLVER_IS_EMPTY;
+    print "There are ", self.number, " bullet";
+    if (self.number > 1)
+      print "s";
+    " in the revolver.";
+  ],
+  before
+  [;
+    Take:
+      if (self.number == 0)
+        print_ret (string)REVOLVER_IS_EMPTY;
+      print "Leave the bullet";
+      if (self.number > 0)
+        print "s";
+      " in the revolver in case you need them.";
+  ],
+  number 6,
+has pluralname scenery;
+
+!========================================
+! Room 6: Town Square
+!========================================
+Object room06 "Town Square"
+with
+  description "You have now reached a square. It's rather small, as the entire town is, but it was clearly meant as a pivoting point. Seeing it so empty gives you an eerie feeling. The road crossing it proceeds south to north, but you can also go east or west.",
+  n_to
+  [;
+    if (dog hasnt general)
+    {
+      dog.time_left = 0;
+      StartDaemon(dog);
+    }
+    return room10;
+  ],
+  e_to
+  [;
+    if (larva hasnt general)
+    {
+      larva.time_left = 0;
+      StartDaemon(larva);
+    }
+    return room05;
+  ],
+  !w_to room07,
+  w_to "The western exit leads to an inn, but there's no way to get inside since it has been wrecked. You decide not to bother with it, since you need to fix your car and find your cousin.",
+  s_to room03,
+has light;
+
+!----------------------------------------
+! Inn
+!----------------------------------------
+Object "inn" room06
+with
+  name 'small' 'village' 'inn' 'tavern',
+  description "You're guessing it's an inn, but it's possibly a tavern. It's hard to tell, as you have no time to enter it and check.",
+has scenery;
+
+!----------------------------------------
+! Town square
+!----------------------------------------
+Object "square" room06
+with
+  name 'square',
+  description "The square is not very big, but it looks beautiful. Actually, it would look beautiful under different circumstances. It has exits in every direction.",
+has scenery;
+
+!========================================
+! Room 7: Village Inn
+!========================================
+! removed from game
+
+!========================================
+! Room 8: Small Sacristy
+!========================================
+Object room08 "Small Sacristy"
+with
+  description "You're in the small sacristy behind the village church. The furniture inside the narrow room is smashed and, among the confusion, you see the corpse of a man, horribly disfigured. You can also see some strange equipment. The only way out is via the door towards the west.",
+  w_to sac_door,
+has light;
+
+!----------------------------------------
+! Small sacristy
+!----------------------------------------
+Object sacristy "small sacristy" room08
+with
+  name 'small' 'sacristy',
+  description "The small sacristy is compact and functional. It is used to serve as a private preparation area for clergy and storing sacred items, but it's now an alien installment.",
+has scenery;
+
+!----------------------------------------
+! Corpse
+!----------------------------------------
+Object dead_body "dead body" room08
+class Body
+with
+  article "a",
+  parse_name
+  [ i;
+    while (NextWord() == 'dead' or 'body' or 'corpse' or 'man')
+      i++;
+    return i;
+  ],
+  description "The man is dressed in fine garments. However, those expensive clothes are of no use any more. The corpse is horribly disfigured and those larvae must have something to do with it.",
+  before
+  [;
+    Search:
+      "Please leave this poor thing alone.";
+  ],
+has animate;
+
+!----------------------------------------
+! suit
+!----------------------------------------
+Object garments "garments" room08
+with
+	name 'expensive' 'garments' 'clothes',
+	description	"They look very expensive.",
+  before
+  [;
+    Take:
+      "Please show some respect. Besides, you wouldn't know what to do with them.";
+  ]
+has scenery pluralname;
+
+!----------------------------------------
+! Strange equipment similar to an incubator, in which you glimpse monstrous larvae
+!----------------------------------------
+Object alien_equipment "strange equipment" room08
+with
+  name 'strange' 'alien' 'equipment' 'incubator' 'machine',
+  description "The strange equipment is similar to an incubator, in which you glimpse monstrous larvae. They are pulsating and moving slowly.",
+  before 
+  [;
+    Attack:
+      if (axe notin player)
+        "I wouldn't do that bare-handed.";
+      move alien_equipment to limbo;
+      move monstrous_larvae to limbo;
+      move destroyed_equipment to location;
+      move larvae_remains to location;
+      give destroyed_equipment general;
+      "Using your axe, you smash the equipment until you destroy it all and kill the larvae.";
+  ],
+has scenery;
+
+!----------------------------------------
+! The monstrous larvae
+!----------------------------------------
+Object monstrous_larvae "monstrous larvae" room08
+with
+  name 'monstrous' 'larvae',
+  description "They must be the source of the infection. If you were to make an educated guess, you would say these monstrous larvae are ready to infect their host. They are pulsating and moving slowly. You'd better destroy the equipment before it's too late.",
+has scenery;
+
+!----------------------------------------
+! Destroyed equipment among which you can see the remains of monstrous larvae
+!----------------------------------------
+Object destroyed_equipment "destroyed alien equipment"
+with
+  article "the",
+  name 'alien' 'destroyed' 'equipment',
+  description "You smashed it all, and you can see the remains of monstrous larvae inside. Is this the end?",
+  before
+  [;
+    Attack:
+      "There's nothing to be destroyed, any more.";
+  ],
+has static;
+
+!----------------------------------------
+! remains of monstrous larvae
+!----------------------------------------
+Object larvae_remains "remains of monstrous larvae" 
+with
+  article "some",
+  name 'remains' 'of' 'monstrous' 'larvae',
+  description "They won't hurt anyone any more.",
+has scenery;
+
+
+!----------------------------------------
+! Document to unveil the truth
+!----------------------------------------
+Object letter "letter" room08 
+with
+  name  'letter' 'sheet' 'of' 'paper' 'document',
+  description
+  [;
+    if (self hasnt general)
+      "Yet another document. You hope to finally discover the truth, here.";
+    "It's a document explaining the truth. ";
+  ],
+  before
+  [;
+    Read:
+	    if (self in player)
+      { 
+        give self general;
+        print "'They came a few years ago, and they offered me a way out of my misery. I don't know where they are now, but they cured me and offered me wellness and power. The only thing they wanted from me in return was to grow these larvae and release them in the environment when told to do so. If I only had known...'^^Who is this guy? Judging from the fine garments he's wearing, he must be a wealthy one. The mayor, perhaps? You keep on reading.^^'I tried to destroy the equipment but they surprised me, infected me, and left me for dead locked inside this room. Those aliens were leaving the town, but they must be hiding somewhere...'^^Then, the writing becomes unreadable. ";
+        if (alien_equipment in location)
+          "It's better to take care of this equipment, now.";
+        "You have nothing else to do here.";
+		  }
+      else "But you are not holding the document.";
+  ],
+  size 2,
+has;
+
+!----------------------------------------
+! Door to sacristy (floating object)
+!----------------------------------------
+Object sac_door "sacristy door"
+with
+  name 'barred' 'sacristy' 'door',
+  description
+  [;
+    print "It's the door that leads to the sacristy. It's currently ";
+    if (self has open)
+      "open.";
+    print "closed";
+    if (self has locked)
+      print " and locked from the other side. An intense brightness filters through its gaps.";
+    "";
+  ],
+  door_dir
+  [;
+    if (self in room09)
+      return e_to;
+    else
+      return w_to;
+  ],
+  door_to
+  [;
+    if (self in room09)
+      return room08;
+    else
+      return room09;
+  ],
+  before 
+  [;
+    Open:
+      if (self has open)
+        "You chopped it into pieces already.";
+    Close:
+      if (self has open)
+        "It's impossible to close it now that you've chopped it down to splinters.";
+    Lock, Unlock:
+      "You don't have the key.";
+    Touch:
+      "I wouldn't do it, if I were you. It might be dangerous.";
+    Attack:
+      if (axe in player)
+      {
+        if (side_b hasnt general)
+          "As soon as you start hitting the door, impressive bolts of energy erupt from the cracks, enveloping you and lifting you into the air, sending you across the church. You are lucky to be still alive.";
+        if (self hasnt general)
+        {
+          give self general;
+          give self ~locked;
+          give self open;
+          move gaps to limbo;
+          "You hit the door with all your might, until you finally open a way. You can now enter the sacristy.";
+        }
+        else
+          "You'll already opened a way through.";
+      }
+      "As you approach the door without anything suitable to force it open, a flash of bright light blinds you and you are hit by an intense (and very painful) discharge of energy. You need to think of something else.";
+  ],
+  with_key dummy_key,
+  found_in room08 room09,
+has door openable lockable locked scenery;
+
+!========================================
+! Room 9: Church
+!========================================
+Object room09 "Church"
+with
+  description 
+  [;
+    print "The interior of the church is wrapped in a deep silence, but the atmosphere you breathe is soothing and relaxing. For a brief moment it makes you forget all the evil that awaits you outside. You can return to the streets by going west, while a ";
+    if (sac_door has locked)
+      print "barred ";
+    else
+      print "broken ";
+    "door to the east leads to the sacristy.";
+  ],
+  w_to
+  [;
+    if (dog hasnt general)
+    {
+      dog.time_left = 0;
+      StartDaemon(dog);
+    }
+    return room10;
+  ],
+  e_to sac_door,
+has light;
+
+!----------------------------------------
+! Church
+!----------------------------------------
+Object "church" room09
+with
+  name 'old' 'country' 'church',
+  description "This old country church seems almost out of place in this town, but you like how it blends with a more modern architecture.",
+  found_in room09 room10,
+has scenery;
+
+!----------------------------------------
+! Intense brightness that filters through the gaps of the barred door
+!----------------------------------------
+Object intense_brightness "intense brightness that filters through the gaps in the sacristy door" room09
+with
+  article "an",
+  name 'intense' 'brightness',
+  description "It is very bright, and filters through the small gaps in the sacristy door.",
+has static;
+
+!----------------------------------------
+! Gaps in the barred door
+!----------------------------------------
+Object gaps "gaps" room09
+with
+  article "some",
+  name 'gaps',
+  description 
+  [;
+    if (intense_brightness notin limbo)
+      "They are big enough to let an intense brightness filter through them.";
+    "Now that you disabled the security system the light doesn't filter through the gaps any more.";  
+  ],
+  before
+  [;
+    Touch:
+      "I wouldn't do it, if I were you. It might be dangerous.";
+    Attack:
+      "Actually, it's the door you should try to open, not the gaps.";
+  ],
+has scenery pluralname;
+
+!========================================
+! Room 10: Road
+!========================================
+Object room10 "Road"
+with
+  description "The road winds through the buildings of Creek Town extending from south to north. You can see a funeral home on the west side and a church on the east side.",
+  !n_to "You can't go north, since a rabid dog is blocking the way.", 
+  !s_to room06,
+  n_to
+  [;
+    if (dog hasnt general)
+      "The dog is blocking your way.";
+    else
+      return room14;
+  ],
+  s_to
+  [;
+    if (dog hasnt general)
+      StopDaemon(dog);
+    return room06;
+  ],
+  e_to
+  [;
+    if (dog hasnt general)
+      StopDaemon(dog);
+    return room09;
+  ],
+  w_to 
+  [;
+    if (dog hasnt general)
+      StopDaemon(dog);
+    return room11;
+  ],
+  in_to 
+  [;
+    if (dog hasnt general)
+      StopDaemon(dog);
+    return room11;
+  ],
+  before
+  [;
+    Hint:
+      if (dog hasnt general)
+        "In case of emergency, a weapon can help to solve the situation.";
+  ],
+has light;
+
+!----------------------------------------
+! dog
+!----------------------------------------
+Object dog "dog" room10
+with
+  name 'dog',
+  short_name
+  [;
+    if (self has general)
+      print "dead ";
+    rfalse;
+  ],
+  description
+  [;
+    print "It's just a dog like many others, and there's nothing special about it. ";
+    if (self hasnt general)
+      "Yet, despite its small size, it's barking furiously, as if it were rabid. You'd better keep a distance.";
+    else
+      print"However, this one won't be doing any more barking, as it's dead";
+      if (self in room25)
+        print" and just became the main course for those rats";
+      ".";
+  ],
+  life
+  [;
+    Attack:
+      if (self hasnt general)
+        "You can't attack it up close or it could bite you and possibly infect you. ";
+      else
+        "Don't waste your time. It's already dead.";
+  ],
+  before
+  [;
+    Eat:
+      if (self hasnt general)
+        "It's more likely that the dog will eat you.";
+    Shoot:
+      if (CantBeShot())
+        rtrue;
+      if (self has general)
+        print_ret "It's", (string)ALREADY_DEAD;
+      bullets.number = 0;
+      give self general;
+      move dead_larva to room10;
+      StopDaemon(self);
+      "BANG! You shoot the dog just as it's about to pounce and it falls to the ground, dead. You were not prepared to witness what happens next. A huge larva bursts out of the dog's body and, screaming in terror, you empty your revolver into it.";
+    Take:
+      if ((self in room25) && (rats has general))
+      {
+        self.take_attempts++;
+        if (self.take_attempts < 2)
+          "The rats are feasting on the dead dog. If you want to become their next meal please go ahead.";
+        else 
+        {
+          deadflag = 1;
+          "The rats launch themselves at you, biting you in various parts of your body. You struggle desperately to get them off, and you actually manage to detach a few, but their number is overwhelming and, in a few minutes, your are doomed.";
+        }
+      }
+      if (self hasnt general)
+        "That dog would bite you at least a couple of times before you have a chance to take it.";
+      if (sack notin player)
+        "You don't know what infected the dog. It might be wiser to put it inside something, if you need to carry it around with you.";
+      if ((sack in player) && (dog notin sack))
+      {
+        move dog to sack;
+        "Using it as if it were a glove, you put the sack over the dog, then pick up the sack, thus avoiding ever touching the animal.";
+      }
+    Drop, Give:
+      if ((dog in sack) && (sack in player))
+      {
+        if (player in room25)
+        {
+          StopDaemon(rats);
+          move self to room25;
+          give rats general;
+          "You drop the dead dog on the floor, and then take a couple of steps back. The rats suddenly throw themselves on the animal's carcass and begin to devour it ravenously. You are now able to proceed eastbound.";
+        }
+        else
+        {
+          move dog to location;
+          "You empty the sack, dropping the dog to the ground.";
+        }
+      }
+    Touch, Search:
+      "You'd better not!";  
+  ],
+  daemon
+  [;
+    self.time_left++;
+    print "^The dog";
+    switch (self.time_left)
+    {
+      1: " stares at you with bloodshot eyes and foam at the mouth. Be careful.";
+      2: "'s posture is changing and getting more aggressive.";
+      3: " is creeping towards you. It's now very close. It looks like you're about to get bitten, and possibly infected.";
+      4: StopDaemon(self);
+        deadflag = 1;
+        " lunges at you, biting your throat. You try in vain to do something to stop it, but now you can no longer avoid a horrible death.";
+    }
+  ],
+  time_left 0,
+  take_attempts 0,
+has animate neuter;
+
+!----------------------------------------
+! Road (floating object)
+!----------------------------------------
+Object town_road "town road"
+with
+  name 'road',
+  description "It's the road that runs south to north inside Creek Town.",
+  found_in room06 room10 room14,
+has scenery;
+
+!----------------------------------------
+! Dead larva
+!----------------------------------------
+Object dead_larva "dead larva" 
+with
+  name 'dead' 'larva',
+  description "Apparently this horrific thing was inside the dog, driving it mad. It's disgusting. It left a green slime trail when it bursted out from the dog.",
+  life
+  [;
+    Attack:
+      "Don't waste your time. It's already dead.";
+  ],
+  before
+  [;
+    Eat:
+      "What? I mean... really?";
+    Shoot:
+      "You already did. At least 5 times.";
+    Take:
+      "No, thanks.";
+    Touch:
+      "I know it's dead, but have you seen what it has done to the dog?";
+  ],
+has animate neuter;
+
+!----------------------------------------
+! Slimy trail
+!----------------------------------------
+Object slimy_trail "green slimy trail" room10
+with
+  name 'green' 'slimy' 'slime' 'trail',
+  description "It's disgusting.",
+  before
+  [;
+    Touch, Take:
+      "I dont' think so.";
+    Smell:
+      "It smells horrible.";
+  ],
+has scenery;
+
+!========================================
+! Room 11: Funeral Home
+!========================================
+Object room11 "Funeral Home"
+with
+  description "The inside of the funeral home is well decorated, but what makes it stand out is the large coffin that lies in the centre of the room. Since you are not in Transylvania, you doubt it can host a vampire, but it still makes you feel uncomfortable. When you are done here, you can return to the street by heading east.",
+  e_to
+  [;
+    if (dog hasnt general)
+    {
+      dog.time_left = 0;
+      StartDaemon(dog);
+    }
+    return room10;
+  ],
+  out_to
+  [;
+    if (dog hasnt general)
+    {
+      dog.time_left = 0;
+      StartDaemon(dog);
+    }
+    return room10;
+  ],
+has light;
+
+!----------------------------------------
+! Funeral home interior
+!----------------------------------------
+Object "interior" room11
+with
+  name 'interior' 'inside',
+  description "The interior is designed for comfort, peace and support. It features calming, neutral colours, soft lighting, plush seating and natural elements, like plants or wood, to create a serene, homely sanctuary for grieving families. ",
+has scenery;
+
+!----------------------------------------
+! Funeral home decorations
+!----------------------------------------
+Object "decorations" room11
+with
+  name 'decorations' 'decore',
+  description "They mainly consists of plants, candles and soothing pictures. ",
+has scenery;
+
+!----------------------------------------
+! Funeral home decoration details
+!----------------------------------------
+Object "detail" room11
+with
+  name 'plants' 'candles' 'soothing' 'pictures',
+  description "They are thought to create a serene, homely sanctuary for grieving families, but there's nothing special about them. ",
+has scenery;
+
+!----------------------------------------
+! Funeral home (floating object)
+!----------------------------------------
+Object "funeral home" 
+with
+  name 'funeral' 'home',
+  description "It's a homely sanctuary for grieving families. ",
+  before
+  [;
+    Enter:
+      if (self in room10)
+        <<Go FAKE_IN_OBJ>>;
+    Exit:
+      if (self in room11)
+        <<Go FAKE_OUT_OBJ>>;
+  ],
+  found_in room10 room11,
+has scenery;
+
+!----------------------------------------
+! Coffin
+!----------------------------------------
+Object coffin "coffin" room11
+class OpenableContainer
+with
+  name 'coffin' 'luxurious' 'looking',
+  description
+  [;
+    print "It's a very luxurious coffin, made with high-quality wood";
+    if (self has open)
+      print "  and silk padding";
+    print ". ";
+    if (self hasnt open)
+      "The coffin is closed.";
+    <<Search self>>;
+  ],
+  before
+  [;
+    Close:
+      if (self hasnt open)
+        "It's already closed.";
+      give self ~open;
+      "You close the coffin.";
+    Lock:
+      "That's not something you can lock.";
+    Open:
+      if (self has open)
+        "It's already open.";
+      give self open;
+      print "You open the coffin. ";
+      <<Search coffin>>;
+    Pull, Push, Take:
+      print_ret (string)TOO_HEAVY_TO_MOVE;
+    Unlock:
+      "That's not something you can unlock.";
+  ],
+  size 10,
+has container openable scenery;
+
+!----------------------------------------
+! Coffin wood
+!----------------------------------------
+Object "coffin wood" room11
+with
+  name 'high-quality' 'wood',
+  description "It's smooth and warm to the touch. ",
+  before
+  [;
+    Touch:
+      "You touch the wood of the coffin, and automatically say a prayer for the poor man. What and unfortunate fate.";
+  ],
+has scenery;
+
+!----------------------------------------
+! Coffin padding
+!----------------------------------------
+Object "coffin padding" room11
+with
+  name 'silk' 'satin' 'padding',
+  description "It look very expensive. ",
+  before
+  [;
+    Touch:
+      "Unlike the wood, the silk feels smooth but cold.";
+  ],
+has scenery;
+
+!----------------------------------------
+! vial of poison
+!----------------------------------------
+Object vial "vial" coffin
+with
+  name 'vial',
+  description
+  [;
+    if (self hasnt general)
+        give self general;
+    "You have no way to be sure of this, but the vial probably contained some poison. That would explain its presence inside the coffin. ";    
+  ],
+  before
+  [;
+    Take:
+      "You don't need it, and aren't sure about its content. It's better to leave it where it is.";
+    Touch:
+      "You'd better not.";
+    Smell:
+      "You lean inside the coffin trying to smell the content of the vial, but that 'scent of bitter almonds' everyone talks about has probably faded away.";
+  ],
+has static;
+
+!----------------------------------------
+! Owner's body
+!----------------------------------------
+Object owners_body "body" coffin
+class Body
+with
+  article "a",
+  name 'body' 'human',
+  description
+  [;
+    print "It's likely the corpse of the funeral home's owner. Since you are not a coroner, you have no idea what the cause of the death was, but ";
+    if (vial has general)
+      print "he could have poisoned himself just to escape this nightmare. ";
+    else 
+      print "the vial could have something to do with it. ";
+    if (self hasnt general)
+      "It might be worth searching him.";
+    else 
+    {
+      give self general;
+      print_ret (string)SEARCH_AGAIN;
+    };
+  ],
+  before
+  [;
+    Search:
+      print "You search the man's pockets ";
+      if (house_key in nothing)
+      {
+        move house_key to player;
+        move note to player;
+        scope_modified = true;
+        "and find a key and a note. You take them and put them in your inventory.";
+      }
+      print_ret (string)SEARCH_AGAIN;
+  ],
+has animate;
+
+!----------------------------------------
+! House key
+!----------------------------------------
+Object house_key "house key" 
+with
+  name 'brass-coated' 'brass' 'house' 'key',
+  description "It's a brass-coated key, the kind of key you would use for a house door.",
+has;
+
+!----------------------------------------
+! Owner's note
+!----------------------------------------
+Object note "note"  
+with
+  name 'note',
+  description
+  [;
+    "It's a note, written on stationary with the funeral home's letterhead. ";
+  ],
+  before
+  [;
+    Read:
+	    if (self hasnt general)
+        give self general;
+      if (self in player)
+      { 
+        "'Ever since that night, things have gone wild here, and it's scary. That night ... when I saw that bright light falling from the sky and disappearing into the woods.^^I started to investigate, but the town's higher-ups prohibited it. And, after that, everything started to change. Strange lights and sounds in the night; electric equipment malfunctioning; people gone missing.^^I can't take it any more, so I decided to end it here. I left another note hidden somewhere else in town; search, and you may find it.'^^So Alan wasn't lying about this. What's going on, here?";
+		  }
+      else "But you are not holding the document.";
+  ],
+  size 2,
+has;
+
+!========================================
+! Room 12: Inside coffin
+!========================================
+! removed from game
+
+!========================================
+! FORMER - Room 13: Village School
+!========================================
+! removed from game
+
+!========================================
+! NEW Room 13 (former 27): Small Garage
+!========================================
+Object room13 "Small Garage"
+with
+  description "The small garage houses an old car covered in dust and full of dents. When you are done here, you can leave towards the west.",
+  out_to room14,
+  w_to room14,
+has light;
+
+!----------------------------------------
+! Small garage
+!----------------------------------------
+Object "garage"
+with
+  name 'small' 'garage' 'construction',
+  description "It's a small construction that barely holds a car. You wonder where the residents park their vehicles.",
+  found_in room13 room14,
+has scenery;
+
+!----------------------------------------
+! Big car
+!----------------------------------------
+Object big_car "car" room13
+	with name 'big' 'dusty' 'old' 'car' 'dents',
+		description "A big dusty and dented car is parked here. As a matter of fact, it's so big that you don't have enough space to open its doors to get in. You wonder how they fit it inside the garage. The hood of the car is open.",
+		before [;
+			Open:
+        "Even if you had the key, there's not enough room to open the door.";
+      Enter: 
+				"There's no enough room to open the door, so you cannot enter it.";
+			],
+	has scenery container;
+
+!----------------------------------------
+! Hood
+!----------------------------------------
+Object big_hood "hood" room13
+with
+  name 'hood',
+  description
+  [;
+    print "It's a hinged cover over the engine bay. ";
+    <<Search self>>;
+  ],
+  before
+  [;
+    Open: 
+      "It is open already.";
+    Close:
+      "As you cannot enter the car to reach its controls, you'd better not close it. You wouldn't be able to open it again.";
+  ],
+has container openable open scenery;
+
+!----------------------------------------
+! Engine
+!----------------------------------------
+Object big_engine "V8 engine" big_hood
+with
+  name 'v8' 'engine',
+  description "It's a V8 engine similar to the one in your car.",
+  before
+  [;
+    SwitchOff, SwitchOn:
+      "It might be easier to do that if you're in the car.";
+  ],
+has static;
+
+!----------------------------------------
+! Working car spark plug
+!----------------------------------------
+Object working_plug "working spark plug" big_hood
+with
+  !name 'working' 'spark' 'plug',
+  parse_name
+  [ nw;
+    nw = NextWord();
+    if (nw == 'working')
+    {
+      nw = NextWord();
+      if (nw == 'plug')
+        return 2;
+      else 
+        if (nw == 'spark' && NextWord() == 'plug')
+          return 3;
+    }
+    if (nw == 'spark')
+      if (NextWord() == 'plug')
+        return 2;
+    if (nw == 'plug')
+      return 1;
+    return 0;
+  ],
+  description "It's brand new and the size you need.",
+  before
+    [;
+      Replace, Transfer:
+        if (player in room29)
+        {
+          if (hood hasnt open)
+            "It's a little difficult to replace the plug if the hood isn't open.";
+          if (self in hood)
+            "You've already replaced it.";
+          <<Replace spark_plug>>;
+        }
+        if (player in room13)
+          "You only need to take this plug. It's the one in your car that you have to replace.";
+        "How do you propose to do that from a distance?";
+      Insert:
+        if (second == car or engine or hood)
+          <<Replace spark_plug>>;
+        else "There's no need to put it back.";
+      Take:
+        if (self in big_hood)
+          "You cannot just take it, since it's tightly screwed.";
+        if (self in hood)
+          "You risked your life more than once to get that new spark plug. Why would you want to remove it now?";  
+      Screw:
+        if (self hasnt moved)
+          "The spark plug is already screwed in. Maybe you should try unscrewing it.";
+        "You obtained what you needed; there's no point in putting it back.";
+      Spray:
+        if (second == nothing && wd40 in player)
+        {
+          print "(with the WD-40)^";
+          <<Spray self wd40>>;
+        }
+        if (second == nothing)
+          "You'll have to tell me what to ", (address)verb_word, " it with.";
+        if (second ~= wd40)
+          "You can't ", (address)verb_word, " them with ", (ThatOrThose)second, ".";
+        give self general;
+        "You spray the spark plug with the WD-40. If the claims on the can are true, you should now be able to unscrew it.";
+      Unscrew:
+        if (self hasnt moved)
+        {
+          if (second == nothing && pliers in player)
+          {
+            print "(with the pliers)^";
+            <<Unscrew self pliers>>;
+          }
+          if (second == nothing)
+            "You'll have to tell me what to unscrew it with.";
+          if (second ~= pliers)
+            "You can't unscrew it with ", (ThatOrThose)second, ".";
+          if (self hasnt general)
+          {
+            "The spark plug is too tight. It may have been rusted by the damp air from the countryside. You'll have to loosen it somehow.";
+          }
+          move self to player;
+          scope_modified = true;
+          "You unscrew the spark plug and put it in your inventory.";
+        }
+        else "You've already unscrewed the plug.";
+  ],
+has;
+
+!========================================
+! Room 14: Road
+!========================================
+Object room14 "Road"
+with
+  description [;
+    print "The long asphalt road crosses the town from north to south. You can also see a shop towards the west and a garage to the east. Access to the garage is granted through a roller shutter, which ";
+    if (item37 hasnt general)
+      "is currently closed.";
+    "is now all the way up.";
+  ],
+  n_to room20,
+  s_to room10,
+  e_to "You cannot venture east because the roller shutter is closed.",
+  w_to
+  [;
+    if (looters hasnt general)
+    {
+      looters.time_left = 0;
+      StartDaemon(looters);
+    }
+    return room15;
+  ],
+  in_to
+  [;
+    if (looters hasnt general)
+    {
+      looters.time_left = 0;
+      StartDaemon(looters);
+    }
+    return room15;
+  ],
+has light;
+
+!----------------------------------------
+! Roller shutter
+!----------------------------------------
+Object item37 "roller shutter"
+with
+  name 'rusty' 'roller' 'shutter' 'shutters',
+  description [; 
+    print"It's a metallic roller shutter that allows the owner to open and close the garage. It was probably meant to offer enhanced security by blocking any attempted break-in of intruders. ";
+    if (self hasnt general)
+      "The locking mechanism has been broken, yet the shutter is still closed. The rust may have stuck it.";
+    "The shutter is now open and you can go in the garage.";
+  ],
+  before
+  [;
+    Take: 
+      "You cannot take the shutter.";
+    Lower:
+      if (self hasnt general)
+        "It's already all the way down, so it can only be raised.";
+      "It's now all the way up. Leave it as it is.";
+    Push, Pull:
+      "The shutter can't be pushed or pulled. Try raising or lowering it instead.";
+    Open, Raise:
+      if (self hasnt general)
+        "It's completely rusty.";
+      "It's now all the way up. Leave it as it is.";
+    Spray:
+        if (self has general)
+          "You already sprayed the shutter, and now it's completely open.";
+        if (second == nothing && wd40 in player)
+        {
+          print "(with the WD-40)^";
+          <<Spray self wd40>>;
+        }
+        if (second == nothing)
+          "You'll have to tell me what to ", (address)verb_word, " it with.";
+        if (second ~= wd40)
+          "You can't ", (address)verb_word, " them with ", (ThatOrThose)second, ".";
+        give self general;
+        room14.e_to = room13;
+        "You spray the shutter with the WD-40 a few times, until you are finally able to raise it all the way up. You can proceed east towards the garage.";
+  ],
+  add_to_scope mechanism,
+  found_in room13 room14,
+has scenery;
+
+!----------------------------------------
+! Locking mechanism
+!----------------------------------------
+Object mechanism "broken locking mechanism"
+with
+  name 'broken' 'locking' 'mechanism',
+  description "It's the mechanism that allowed to lock the shutter. It has been broken and doesn't work.",
+has scenery;
+
+!========================================
+! Room 15: Small Shop
+!========================================
+Object room15 "Small Shop"
+with
+  description "The chaos that reigns in this shop is beyond words. Broken glass, dust and objects are scattered everywhere. The only exit is towards the east.",
+  e_to
+  [;
+    if (looters hasnt general)
+      StopDaemon(looters);
+    return room14;
+  ],
+  out_to
+  [;
+    if (looters hasnt general)
+      StopDaemon(looters);
+    return room14;
+  ],
+  before
+  [;
+    Hint:
+      if (looters hasnt general)
+        "In case of emergency, a weapon can help to solve the situation.";
+    Search:
+      if (looters hasnt general)
+        "Not while those two looters are still looting.";
+  ],
+has light;
+
+!----------------------------------------
+! Shop
+!----------------------------------------
+Object "shop"
+with
+  name 'shop',
+  description "This retail store sells electronic devices, appliances and related accessories. No wonder that it's become a target for looters, now that the town is deserted.",
+  before
+  [;
+    Enter:
+      if (self in room14)
+        <<Go FAKE_IN_OBJ>>;
+    Exit:
+      if (self in room15)
+        <<Go FAKE_OUT_OBJ>>;
+  ],
+  found_in room14 room15,
+has scenery;
+
+!----------------------------------------
+! broken glass
+!----------------------------------------
+Object "broken glass" room15
+with
+  name 'broken' 'glass' 'objects',
+  description "It's the result of all the looting and destruction that occurred here.",
+has scenery;
+
+!----------------------------------------
+! dust
+!----------------------------------------
+Object "dust" room15
+with
+  name 'dust',
+  description "It's just dust and there's nothing special about it.",
+  found_in room15 room05 room23 room13,
+has scenery;
+
+!----------------------------------------
+! Mess
+!----------------------------------------
+Object "mess" room15
+with
+  name 'junk' 'mess' 'confusion' 'shelves',
+  description "The confusion inside the shop is embarrassing.",
+  before
+  [;
+    Search:
+      "Don't bother about it.";
+  ],
+has scenery;
+
+!----------------------------------------
+! broken shelf
+!----------------------------------------
+Object shelf "broken shelf" 
+with
+  name 'broken' 'shelf',
+  description "The broken shelf is the result of your lousy aim. Still, it's what knocked those looters down.",
+has static;
+
+!----------------------------------------
+! Armed looters
+!----------------------------------------
+Object looters "couple of armed looters" room15
+with
+  name 'couple' 'of' 'armed' 'looters',
+  initial 
+  [;
+    if (looters hasnt general)
+      "A couple of looters are inside the shop.";
+    "Thanks to your 'excellent' aim, the two looters are now harmless.";
+  ],
+  description
+  [;
+    if (looters hasnt general)
+      "The two looters are intent on scavenging the place, and are not paying attention to you. You notice that they are cradling rifles in their arms, so they are likely to be very dangerous. ";
+    else
+      "They now lie on the ground unconscious.";
+  ],
+  life
+  [;
+    Ask, Talk:
+      print "Asking things to those men would only get you killed. ";
+      if (looters has general)
+        "Besides, they now lie on the ground unconscious; I doubt they would be very responsive.";
+    Attack:
+      if (looters hasnt general)
+        "Indeed! But you need to be more specific.";
+      "Since they are already lying on the ground unconscious, I suppose there's no need to.";
+    Give, Show:
+      if (looters hasnt general)
+        "This move would only get you killed.";
+      "Since they are lying on the ground unconscious, I suppose they are not very interested.";
+  ],
+  before
+  [;
+    Shoot:
+      if (second == revolver && revolver notin player)
+        "You're not holding the revolver.";
+      if (second == revolver && revolver in player)
+        "The revolver is empty. What if the looters don't buy your bluff?";
+      if (shotgun notin player)
+        "Those looters seem used to fighting. You'll need a bigger, more powerful weapon to get rid of them.";
+      if (shotgun in player)
+      {
+        if (shotgun.number == 0)
+        {
+         deadflag = 1;
+         "You realize you never loaded the shotgun, so those looters have all the time to take aim and hit you in the middle of the forehead with a precise rifle shot.You fall to the ground, dead. What an ugly way to end your days!";
+        }
+        else
+        {
+          StopDaemon(self);
+          shotgun.number = 0;
+          give self general;
+          move battery to room15;
+          move shelf to room15;
+          "BANG! You shoot the first round and the recoil sends you across the shop. You obviously miss the target, but manage not to get killed either.^^BANG! You shoot again, and again you miss the looters. Yet, you hit a shelf which, with a loud noise, breaks down and fortuitously hits them. As they are lying on the ground unconscious, you can now take a look around.";
+        }
+      }
+  ],
+  daemon
+  [;
+    self.time_left++;
+    print "^The couple of looters ";
+    switch (self.time_left)
+    {
+      1: "are searching through the mess and they don't notice you.";
+      2: "are now getting closer. You'd better think of something.";
+      3: "are now very close and may see you at any moment. Either do something or leave the place.";
+      4: StopDaemon(self);
+        deadflag = 1;
+        "see you, and immediately raise their rifle and fire at you! Your lifeless body falls to the ground. Your adventure ends here.";
+    }
+  ],
+  time_left 0,
+has animate neuter pluralname transparent;
+
+!----------------------------------------
+! Rifle
+!----------------------------------------
+Object rifles "rifles" looters
+with
+  name 'rifles',
+  description "They look like hi-end sharp-shooting weapons.",
+  before
+  [;
+    Take:
+      if (looters hasnt general)
+        "Are you feeling suicidal?";
+      "Hopefully, you will not need to shoot any more. Leave those rifles where they are, but get out of here fast and carry on; you don't want these two to wake up and chase you around Creek Town.";
+  ],
+has scenery pluralname;
+
+!----------------------------------------
+! 9-volt battery
+!----------------------------------------
+Object battery "9-volt battery" !room15
+with
+  name '9-volt' '9//' 'volt' 'battery',
+  description "It's a common power source with a nominal voltage of 9V, often used in portable electronics. It might come in handy.",
+has;
+
+!========================================
+! Room 16: Inside of building
+!========================================
+Object room16 "Inside of building"
+with
+  description "The inside of the building is empty, making it a spooky place as if it were haunted. When you walk, the echo of your steps is unnerving. You can go back out or proceed up to the second floor.",
+  u_to room23,
+  w_to room18,
+  out_to room18,
+  before
+  [;
+    Listen:
+      "There's an eerie silence inside this building, but you can still hear the echo of your steps in your ears.";
+  ],
+has light;
+
+!----------------------------------------
+! Inside of building (floating object)
+!----------------------------------------
+Object "inside"
+with
+  name 'inside',
+  description "The inside of the building might have hosted furniture and paintings, but if something was present before, it must have been looted as the place is empty.",
+  before
+  [;
+    Enter:
+      if (self in room16)
+        <<Go FAKE_IN_OBJ>>;
+    Exit:
+      if (self in room18)
+        <<Go FAKE_OUT_OBJ>>;
+  ],
+  found_in room16 room18,
+has scenery;
+
+!========================================
+! Room 17: Entrance of Old Building
+!========================================
+! removed from game
+
+!----------------------------------------
+! Old building (floating object)
+!----------------------------------------
+Object "old building"
+with
+  name 'old' 'building',
+  description "This old building rises high, standing out among the low structures of the rest of the town. It likely housed various types of offices.",
+  found_in room16 room18 room24,
+has scenery;
+
+!========================================
+! Room 18: In Front of Old Building
+!========================================
+Object room18 "In Front of Old Building"
+with
+  description "You're in front of an old building. The building is only two stories high and, beyond the entrance, you can see a part of the inside. From here you can go inside the building by going east, or you can go back from where you came towards the north.",
+  n_to room24,
+  in_to room16,
+  e_to room16,
+has light;
+
+!----------------------------------------
+! Entrance (floating object)
+!----------------------------------------
+Object "entrance"
+with
+  name 'entrance',
+  description [;
+    if ((location == room18) || (location == room16))
+      "It's just the entrance of a building, but it's frightening like the gates of Hell.";
+    if ((location == room24) || (location == room26))
+      "It takes you down under the street and to the other side.";
+  ],
+  found_in room16 room18 room24 room26,
+has scenery;
+
+!========================================
+! Room 19: Hardware Store
+!========================================
+Object room19 "Hardware Store"
+with
+  description "You're inside a small hardware store that, like all the others in town, has been greedily looted. When you are done here you can leave towards the west.",
+  out_to room20,
+  w_to room20,
+has light;
+
+!----------------------------------------
+! Hardware store
+!----------------------------------------
+Object "hardware store"
+with
+  name 'small' 'hardware' 'store',
+  description "This small store sells essential items for home maintenance, repair and DIY projects. Since Creek Town is fairly distant from other cities, it was well furnished. Now it has been greedily looted.",
+  before
+  [;
+    Enter:
+      if (self in room20)
+        <<Go FAKE_IN_OBJ>>;
+    Exit:
+      if (self in room19)
+        <<Go FAKE_OUT_OBJ>>;
+  ],
+  found_in room19 room20,
+has scenery;
+
+!----------------------------------------
+! Sharp axe
+!----------------------------------------
+Object axe "sharp axe" room19
+with
+  name 'sharp' 'axe',
+  description "It's one of those axes one would use to chop wood or break things. It might be useful.",
+has;
+
+!----------------------------------------
+! Pliers
+!----------------------------------------
+Object pliers "pliers" room19
+with
+  article "a pair of",
+  name 'pliers',
+  description "It's a tool to screw and unscrew things.",
+has;
+
+!========================================
+! Room 20: Outskirts of Town
+!========================================
+Object room20 "Outskirts of Town"
+with
+  description "You've reached the outskirts of the town. You can see a hardware store to your east and the door to an apartment entrance to the west. Towards the south, the road disappears in the distance passing by various buildings. A northern exit leads to an underpass.",
+  n_to room26,
+  s_to room14,
+  e_to room19,
+  in_to room19,
+  w_to front_door, 
+  !in_to "The roller shutter is closed.",
+has light;
+
+!----------------------------------------
+! Buildings (floating object)
+!----------------------------------------
+Object "buildings"
+with
+  name 'buildings',
+  description"Church, post office, hardware store, inn... like in any other place.",
+  found_in room20 room10 room14 room06,
+has scenery;
+
+!----------------------------------------
+! Outskirts of town
+!----------------------------------------
+Object "outskirts of town" room20
+with
+  name 'outskirts' 'of' 'town',
+  description "Dense urban life fades into less crowded areas, featuring a mix of suburbs, scattered homes, and open country.",
+  found_in room04 room20 room28 room29 room30,
+has scenery;
+
+!----------------------------------------
+! Front door (floating object)
+!----------------------------------------
+Object front_door "front door"
+with
+  name 'front' 'apartment' 'door',
+  description
+  [;
+    print "It's the front door to the house. Since we are at the outskirts of town it is made of painted metal panels with a small peephole to check on visitors. The door is currently ";
+    if (self has open)
+      "open.";
+    else
+      "closed.";
+  ],
+  door_dir
+  [;
+    if (self in room20)
+      return w_to;
+    else
+      return e_to;
+  ],
+  door_to
+  [;
+    if (self in room20)
+      return room21;
+    else
+      return room20;
+  ],
+  with_key house_key,
+  found_in room20 room21,
+has door lockable locked openable scenery;
+
+!----------------------------------------
+! Door parts (floating object)
+!----------------------------------------
+Object door_parts "door parts"
+with
+  name 'painted' 'metal' 'panels' 'small' 'peephole',
+  description"There is nothing special about the panels or the peephole.",
+  found_in room20 room21,
+has scenery;
+
+!========================================
+! Room 21: Living Room
+!========================================
+Object room21 "Living Room"
+with
+  description "The living room of the small apartment bears the signs of a fierce fight and many of the furnishings are damaged. There is another room to the west, or you can leave the apartment via the front door to the east.",
+  w_to room22,
+  e_to front_door,
+has light;
+
+!----------------------------------------
+! Living room
+!----------------------------------------
+Object "living room" room21
+with
+  name 'living' 'room' 'place' 'apartment',
+  description "While looking at it, you are impressed by how big this room is, compared to the rest of the place.",
+has scenery;
+
+!----------------------------------------
+! Furnitures
+!----------------------------------------
+Object "furnitures"
+with
+  name 'damaged' 'smashed' 'furnitures' 'furnishings',
+  description "Although damaged by what looks like a furious fight, there's nothing special about the furniture.",
+  found_in room08 room21,
+has scenery;
+
+!========================================
+! Room 22: Bedroom
+!========================================
+Object room22 "Bedroom"
+with
+  description "You are now inside a bedroom, whose only exit is towards the east. A window looks out onto the street. The window can't be opened.",
+  e_to room21,
+has light;
+
+!----------------------------------------
+! Bedroom
+!----------------------------------------
+Object "bedroom" room22
+with
+  name 'bedroom' 'accommodation',
+  description "This bare bedroom reveals the life style of it's inhabitant. You can go back to the living room by going east.",
+has scenery;
+
+!----------------------------------------
+! Bed
+!----------------------------------------
+Object bed "bed" room22
+with
+  name 'large' 'bed',
+  description
+  [;
+    print "The bed looks very comfy, but it's all messed up and doesn't look like it's been made for days. ";
+    <<Search self>>;
+  ],
+  before
+  [;
+    Enter:
+      if (verb_word == 'sit')
+        "You sit on the bed to try it. Yep, it sure is comfy, but you have no time to waste sitting around on someone else's bed, so you stand up again.";
+      if (verb_word == 'stand')
+        "The bed might be all messed up, but that doesn't mean you can stand on it in your dirty boots.";
+      <<Sleep>>;
+    LookUnder:
+      "You take a look under the bed, but there luckily are no larvae hiding there.";
+  ],
+has enterable static supporter;
+
+!----------------------------------------
+! Window
+!----------------------------------------
+Object window "window" room22
+with
+  name 'window',
+  description "You look out of the window but you only see empty streets. This place is death.",
+has scenery;
+
+!----------------------------------------
+! Empty streets
+!----------------------------------------
+Object streets "streets" room22
+with
+  name 'empty' 'place' 'streets',
+  description "The atmosphere is spooky. Despite being a small town, there should still be some sign of life, but the place is deserted.",
+has scenery;
+
+!----------------------------------------
+! Shotgun
+!----------------------------------------
+Object shotgun "shotgun" room22
+with
+  name 'shotgun' 'gun' 'dual-barrel' 'dual' 'barrel',
+  description
+  [;
+    print "It's a dual-barrel shotgun used for hunting ducks and turkeys and things like that. It's ";
+    if (self.number == 0)
+      "not currently loaded.";
+    print "loaded with ", self.number, " cartridge";
+    if (self.number > 1)
+      print "s";
+    ".";
+  ],
+  before
+  [;
+    Search: 
+      print "You search the shotgun";
+      if (paper hasnt general)
+      {
+        move paper to location;
+        give paper general;
+        print " and, in the process, a piece of paper falls on the ground";
+      }
+      else 
+        print " but you don't find anything else of interest";
+      ".";
+    Load:
+      if (self.number > 0)
+      {
+        print "It's already loaded with ", self.number, " cartridge";
+        if (self.number > 1)
+          print "s";
+        ".";
+      }
+      if (second == nothing && cartridges in player)
+      {
+        print "(with the cartridges)^";
+        second = cartridges;
+      }
+      if (second == nothing)
+        "You don't have anything suitable to load it with.";
+      if (second ~= cartridges)
+        "You can't load the shotgun with ", (ThatOrThose)second, ".";
+      self.number = 2;
+      move cartridges to limbo;
+      print "You load the cartridges into the shotgun";
+      if (paper hasnt general)
+      {
+        move paper to location;
+        give paper general;
+        print " and, in the process, a piece of paper falls on the ground";
+      }
+      ".";
+  ],
+  number 0,
+  size 9,
+has;
+
+!----------------------------------------
+! Cartridges
+!----------------------------------------
+Object cartridges "cartridges" room22
+with
+  article "two",
+  name 'cartridges',
+  description "They're shotgun cartridges.",
+  before
+  [;
+    Count:
+      "There are two cartridges.";
+    Insert:
+      if (second == shotgun)
+        <<Load second self>>;
+  ],
+  size 3,
+has pluralname;
+
+!----------------------------------------
+! Owner's note #2
+!----------------------------------------
+Object paper "piece of paper"  
+with
+  name 'piece' 'of' 'paper',
+  description
+  [;
+    "It's a piece of paper that was concealed inside the shotgun. It fell on the ground when you loaded it. ";
+  ],
+  before
+  [;
+    Read:
+	    if (self in player)
+      { 
+        print "You read the piece of paper with evergrowing fear and anxiety.^^'Creek Town is doomed. I now know it for a fact.^^I've been living here since I was born; I grew up with its establishment; I was one of the town's most respected people. But not anymore.^^When I understood what was going on I should have done something. I should have acted, but I didn't, and now those creatures have taken over.^^I cannot fight against them, and I cannot leave the town and risk spreading the disease myself. The poison will kill me, but it will also kill anything else inside of me. I made up my mind. Lord, forgive me.'^^";
+        if (vial has general)
+          print "So the man did kill himself, as you suspected. ";
+        else 
+          print "You wonder if the vial found in the coffin did contain a sort of poison. ";
+        "But who, or what, are the creatures he was referring to? The larvae, or something else?";
+		  }
+      else "But you are not holding the document.";
+  ],
+  size 2,
+has;
+
+!========================================
+! Room 23: Small Office
+!========================================
+Object room23 "Small Office"
+with
+  description "You've arrived in a small office on the second floor. The place is mostly in the dark, so it's difficult to make up what's inside. The tension grows with every step you take, as you don't know what may be lurking in the dark. When you are done here, you can exit the office by going down.",
+  d_to room16,
+has light;
+
+!----------------------------------------
+! Small office
+!----------------------------------------
+Object "office" room23
+with
+  name 'small' 'office',
+  description "It's a compact workspace for a few people, probably freelance reporters judging on the set up.",
+has scenery;
+
+!----------------------------------------
+! Wall
+!----------------------------------------
+Object wall "wall" room23
+with
+  name 'wall',
+  description "It's just an office wall. Don't bother with it.",
+has scenery;
+
+!----------------------------------------
+! Corner
+!----------------------------------------
+Object corner "corner" room23
+with
+  name 'corner',
+  description 
+  [;
+    if (woman hasnt general)
+      "The corner is dark and you cannot understand what is other there.";
+    "Now that your eyes have adjusted to the dark, you can see a filing cabinet in the corner.";
+  ],
+has scenery;
+
+!----------------------------------------
+! Corpse of a woman
+!----------------------------------------
+Object woman "corpse of a woman" room23
+class Body
+with
+  article "the",
+  name 'corpse' 'of' 'woman' 'body',
+  description "The corpse of a woman lies in the dark, sitting on the floor against a wall.",
+  before
+  [;
+    Search:
+      if (self hasnt general)
+      {
+        give self general;
+        move cabinet to room23;
+        "You search the corpse but find nothing of interest. Still, you notice that the corpse's right arm points towards a corner. Now that your eyes are adjusting to the dark, you can see a filing cabinet.";
+      }
+      else
+        "The poor thing doesn't hold anything useful to you.";
+  ]
+has animate female;
+
+!----------------------------------------
+! Woman's arm
+!----------------------------------------
+Object womans_arm "woman's arm" room23
+with
+  name 'right' 'arm',
+  description 
+  [;
+    "It's pointing towards a filing cabinet in the corner.";
+  ],
+  before
+  [;
+    Examine:
+      if (woman hasnt general)
+      {
+        give woman general;
+        !give self general;
+        move cabinet to room23;
+      }
+  ],
+has scenery;
+
+!----------------------------------------
+! Cabinet
+!----------------------------------------
+Object cabinet "filing cabinet" 
+class OpenableContainer
+with
+  name 'dusty' 'old' 'filing' 'cabinet',
+  description
+  [;
+    print "It's a dusty old filing cabinet, the perfect complement to the office's furniture. ";
+    <<Search self>>;
+  ],
+  before
+  [;
+    Pull, Push, Take:
+      print_ret (string)TOO_HEAVY_TO_MOVE;
+  ],
+  after
+  [;
+    Open:
+      give self general;
+  ],
+  size 10,
+has container openable;
+
+!----------------------------------------
+! Cassette player
+!----------------------------------------
+Object cassette_player "cassette player" cabinet
+with
+  parse_name
+  [ nw i flag;
+    nw = NextWord();
+    while (nw == 'cassette' or 'tape' or 'player' or 'recorder' or 'buttons')
+    {
+      i++;
+      if (nw == 'cassette' or 'tape' && TestScope(cassette))
+        flag++;
+      nw = NextWord();
+    }
+    if (i == flag)
+      return 0;
+    return i;
+  ],
+  description
+  [;
+    print "It's a cassette player for playing cassettes. It has three buttons labelled PLAY, REWIND and EJECT. ";
+    <<Search self>>;
+  ],
+  before
+  [;
+    LetGo:
+      if (noun ~= battery)
+        "You can't remove it manually, just press the EJECT button.";
+    Receive:
+      if (noun == cassette)
+        "You'll need to specify whether you want to insert side A or side B.";
+      if (noun ~= battery)
+        print_ret (The)noun, " won't fit in the cassette player.";
+  ],
+  add_to_scope play_button eject_button rewind_button,
+has container open;
+
+!----------------------------------------
+! Play button
+!----------------------------------------
+Object play_button "play button"
+with
+  name 'play' 'button',
+  description "The play button is labelled 'PLAY'. It's used to play a cassette.",
+  before
+  [;
+    Push:
+      if (cassette notin cassette_player)
+        "Nothing happens, as there's no cassette in the cassette player.";
+      if (battery notin cassette_player)
+        "Nothing happens, because there's no battery in the cassette player.";
+      if (cassette_player hasnt general)
+      {
+        !Side A
+        if (cassette has general)
+          "Nothing happens. The cassette needs to be rewound.";
+        give cassette general;
+        "The player's motor starts up, with a low hum. Then, from the small speaker, a woman's voice clearly resounds.^^~Whoever you are, God sent you. Earth's destiny is in your hands! As weird as it may seem, we are undergoing an alien invasion. Those invaders are using some kind of larvae to infect human beings and snatch their bodies. Even animals are possibly affected by this unspeakable behaviour.~^^There's a cough, almost a gurgle, then the voice resumes.^^~There is a recording on the other side of this cassette, that corresponds to the sound made by the aliens before approaching their own machinery, and which should save you from their automatic protection system.~^^The voice becomes fainter, and pauses for a few seconds. Then, it starts again.^^~I managed to record it, but the price I had to pay is very high. Now I have little time left to live and I just want to tell you to do your best, because when the damned larvae have grown on the Earth, it will really be over.~^^There's a gasp and then nothing. The recording stops, leaving you in terror. All of a sudden, your cousin doesn't seem all that weird any more.";
+      }
+      else
+      {
+        !Side B
+        if (cassette hasnt general)
+          "Nothing happens. The cassette needs to be rewound.";
+        give cassette ~general;
+        print "A strange modulated sound comes out of the recorder's speaker. It keeps repeating itself like a kind of mathematical sequence. ";
+        ! game specific action
+        if ((side_b hasnt general) && (player in room09))
+        {
+          give side_b general;
+          move intense_brightness to limbo;
+          print "The weird light behind the door disappears. If the woman was right, the security system is now disabled, and it's safe to hit the door.";
+        }
+        "";
+        ! end of action
+      }
+  ],
+has scenery;
+
+!----------------------------------------
+! Rewind button
+!----------------------------------------
+Object rewind_button "rewind button"
+with
+  name 'rewind' 'button',
+  description "The rewind button is labelled 'REWIND'. It's used to rewind a cassette.",
+  before
+  [;
+    Push:
+      if (cassette notin cassette_player)
+        "Nothing happens, as there's no cassette in the cassette player.";
+      if (battery notin cassette_player)
+        "Nothing happens, because there's no battery in the cassette player.";
+      if (cassette_player hasnt general)
+      {
+        !Side A
+        if (cassette hasnt general)
+          "Nothing happens. It must be fully rewound.";
+        give cassette ~general;
+        "The cassette spins wildly as it rewinds the cassette, then it comes to a stop.";
+      }
+      else
+      {
+        !Side B
+        if (cassette has general)
+          "Nothing happens. It must be fully rewound.";
+        give cassette general;
+        "The cassette spins wildly as it rewinds the cassette, then it comes to a stop.";
+      }
+  ],
+has scenery;
+
+!----------------------------------------
+! EJECT button
+!----------------------------------------
+Object eject_button "EJECT button"
+with
+  name 'eject' 'button',
+  description "The EJECT button is used to eject a cassette.",
+  before
+  [;
+    Push:
+      if (cassette notin cassette_player)
+        "Nothing happens, as there's no cassette in the cassette player.";
+      move cassette to player;
+      print "The cassette pops out and you grab it";
+      if (children(player) > MAX_CARRIED)
+      {
+        print ", but your hands are full and you drop ", (the)(youngest(player));
+        move youngest(player) to real_location;
+      }
+      ".";
+  ],
+has scenery;
+
+!----------------------------------------
+! Cassette
+!----------------------------------------
+Object cassette "cassette" cabinet
+with
+  name 'c90' 'cassette' 'tape' 'two' 'sides',
+  description
+  [;
+    print "It's a C90 cassette with two sides labelled Side A and Side B.";
+    if (self in cassette_player)
+    {
+      print " It's currently in the cassette player with side ";
+      if (cassette_player hasnt general)
+        print "A";
+      else
+        print "B";
+      print " facing up.";
+    }
+    "";
+  ],
+  before
+  [;
+    Eject:
+      if (self notin cassette_player)
+        "You can only eject the cassette if it's in a cassette player.";
+      <<Push eject_button>>;
+    Play:
+      if (self notin cassette_player)
+        "You can only play the cassette if it's in a cassette player.";
+      <<Push play_button>>;
+    Rewind:
+      if (self notin cassette_player)
+        "You can only rewind the cassette if it's in a cassette player.";
+      <<Push rewind_button>>;
+    Turn:
+      if (self notin cassette_player)
+        rfalse;
+      if (cassette_player has general)
+        give cassette_player ~general;
+      else
+        give cassette_player general;
+      "You eject the cassette, turn it over and put it back into the cassette player.";
+  ],
+  add_to_scope side_a side_b,
+has;
+
+!----------------------------------------
+! Side A
+!----------------------------------------
+Object side_a "side A"
+with
+  name 'side' 'a//',
+  description
+  [;
+    if (cassette in cassette_player && cassette_player has general)
+      "You can't see side A of the cassette, as it's facing down in the cassette player.";
+    else
+      "Side A of the cassette is labelled 'play me first'.";
+  ],
+  before
+  [;
+    Eject, Play, Rewind:
+      <<(action) cassette>>;
+    Insert:
+      if (second == cassette_player)
+      {
+        if (cassette in cassette_player)
+          "It's already in the cassette player.";
+        move cassette to cassette_player;
+        give cassette_player ~general;
+        "You insert the cassette into the cassette player with side A facing up.";
+      }
+    Take:
+      "That's part of the cassette.";
+  ],
+has scenery;
+
+!----------------------------------------
+! Side B
+!----------------------------------------
+Object side_b "side B"
+with
+  name 'side' 'b//',
+  description
+  [;
+    if (cassette in cassette_player && cassette_player hasnt general)
+      "You can't see side B of the cassette, as it's facing down in the cassette player.";
+    else
+      "Side B of the cassette is labelled 'surveillance system disabler'.";
+  ],
+  before
+  [;
+    Eject, Play, Rewind:
+      <<(action) cassette>>;
+    Insert:
+      if (second == cassette_player)
+      {
+        if (cassette in cassette_player)
+          "It's already in the cassette player.";
+        move cassette to cassette_player;
+        give cassette_player general;
+        "You insert the cassette into the cassette player with side B facing up.";
+      }
+    Take:
+      "That's part of the cassette.";
+  ],
+has scenery;
+
+!========================================
+! Room 24: Entrance to Underpass
+!========================================
+Object room24 "East Entrance to Underpass"
+with
+  description "You're near a narrow underpass, north of an old isolated building. You can go back to the town centre by going down towards the west, or you can go towards the old isolated building by going south.",
+  s_to room18,
+  d_to room25,
+  w_to room25,
+  before
+  [;
+    Smell:
+      "The smell is disgusting.";
+  ],
+has light;
+
+!----------------------------------------
+! Underpass (floating object)
+!----------------------------------------
+Object "underpass"
+with
+  name 'narrow' 'dark' 'damp' 'fetid' 'underpass',
+  description "It's just a narrow, dark, damp, and fetid underpass.",
+  found_in room20 room24 room25 room26,
+has scenery;
+
+!========================================
+! Room 25: Underpass
+!========================================
+Object room25 "Underpass"
+with
+  description "You're inside a dark and damp underpass that leads from the town to the outskirts. There are exits to the east and west.",
+  !w_to room26,
+  !e_to room24,
+  e_to
+  [;
+    if (rats hasnt general)
+      "The rats are blocking your way.";
+    else
+      return room24;
+  ],
+  w_to
+  [;
+    if (rats hasnt general)
+      StopDaemon(rats);
+    return room26;
+  ],
+  before
+  [;
+    Smell:
+      "The smell is disgusting.";
+  ],
+has light;
+
+!----------------------------------------
+! Hungry rats
+!----------------------------------------
+Object rats "hungry rats" room25
+with
+  article "a pack of",
+  name 'rat' 'pack' 'of' 'hungry' 'rats',
+  description
+  [;
+    print "A pack of hungry rats swarm the underpass floor. ";
+    if (self hasnt general)
+      "Since they are blocking your way, you can only go back from where you came, unless you find a way to distract them.";
+    else
+      "They are now intent on picking the carcass of the dog, so you can walk past them.";
+  ],
+  life
+  [;
+    Attack:
+      if (self hasnt general)
+        "They are too many to be attacked, and it might be dangerous. Think about something else.";
+      else
+        "Don't waste your time. They are not midnding you anymore.";
+  ],
+  before
+  [;
+    Shoot:
+      "They are too many to be taken down. Even if you managed to kill a couple of them, the others will eat you alive.";
+    Take, Touch:
+      "SLIMY. FILTHY. RATS. Yack!";
+  ],
+  daemon
+  [;
+    self.time_left++;
+    print "^The rats";
+    switch (self.time_left)
+    {
+      1: " look at you like a predator would look at its dinner.";
+      2: "' posture is changing and getting more aggressive.";
+      3: " are creeping towards you. It's your last chance to do something.";
+      4: StopDaemon(self);
+        deadflag = 1;
+        " launch themselves at you, biting you in various parts of your body. You struggle desperately to get them off you and you manage to detach a few, but their numbers are overwhelming and, in a few minutes, your end is sealed.";
+    }
+  ],
+  time_left 0,
+has animate neuter pluralname;
+
+!========================================
+! Room 26: Entrance to Underpass
+!========================================
+Object room26 "West Entrance to Underpass"
+with
+  description "You're near the entrance to a fetid underpass north of the main road. You can either go south towards the outskirts of town, or down into the underpass to your east.",
+  s_to room20,
+  d_to
+  [;
+    if (rats hasnt general)
+    {
+      rats.time_left = 0;
+      StartDaemon(rats);
+    }
+    return room25;
+  ],
+  e_to
+  [;
+    if (rats hasnt general)
+    {
+      rats.time_left = 0;
+      StartDaemon(rats);
+    }
+    return room25;
+  ],
+  before
+  [;
+    Smell:
+      "The smell is disgusting.";
+  ],
+has light;
+
+!========================================
+! Limbo
+!========================================
+Object limbo;
+
+Object dummy_key;
+
+!========================================
+! Printing rules
+!========================================
+[ consultWord word i;
+  for (i=0:i<WordLength(word):i++)
+    print (char)LowerCase(WordAddress(word)->i);
+];
+
+[ DoesntOrDont obj;
+  if (obj has pluralname)
+    print "don't";
+  else
+    print "doesn't";
+];
+
+[ firstConsultWord word i;
+  for (i=0:i<WordLength(word):i++)
+    if (i == 0)
+      print (char)UpperCase(WordAddress(word)->i);
+    else
+      print (char)LowerCase(WordAddress(word)->i);
+];
+
+[ italic text;
+#Ifv5;
+  style underline;
+#Endif;
+  print (string)text;
+#Ifv5;
+  style roman;
+#Endif;
+];
+
+!========================================
+! Other routines
+!========================================
+[ _UpdateDarkness p_silent _ceil _old_darkness _darkness;
+  if (location == thedark)
+    _old_darkness = true;
+  _ceil = ScopeCeiling(player);
+  if (_LookForLightInObj(_ceil, _ceil) == false)
+    _darkness = true;
+  if (_darkness ~= _old_darkness)
+    scope_modified = true;
+  if (_darkness)
+    location = thedark;
+  else
+    location = real_location;
+  if (_darkness ~= _old_darkness && p_silent == false)
+  {
+    new_line;
+    <Look>;
+  }
+];
+
+[ CantBeShot;
+  if (second == nothing && revolver in player)
+  {
+    print "(with the revolver)^";
+    second = revolver;
+  }
+  if (second == nothing && shotgun in player)
+  {
+    print "(with the shotgun)^";
+    second = shotgun;
+  }
+  if (second == nothing)
+    "You have no weapon.";
+  if (second ~= revolver or shotgun)
+    "You can't shoot anything with ", (ThatOrThose)second, ".";
+  if (second == revolver && bullets.number == 0)
+    "You pull the trigger, but nothing happens. The revolver must be out of bullets.";
+  rfalse;
+];
+
+[ LowerCase c; ! for ZSCII matching ISO 8859-1
+  switch (c)
+  {
+    'A' to 'Z': c = c + 32;
+    202, 204, 212, 214, 221: c--;
+    217, 218: c = c - 2;
+    158 to 160, 167, 168, 208 to 210: c = c - 3;
+    186 to 190, 196 to 200: c = c - 5 ;
+    175 to 180: c = c - 6;
+  }
+  return c;
+];
+
+[ UpperCase c; ! for ZSCII matching ISO 8859-1
+  switch (c)
+  {
+    'a' to 'z': c = c - 32;
+    201, 203, 211, 213, 220: c++;
+    215, 216: c = c + 2;
+    155 to 157, 164, 165, 205 to 207: c = c + 3;
+    181 to 185, 191 to 195: c = c + 5 ;
+    169 to 174: c = c + 6;
+  }
+  return c;
+];
+
+!========================================
+! Grammar
+!========================================
+Extend 'ask'
+  * 'about' topic -> AskAbout;
+
+Extend 'empty'
+  * noun 'in'/'inside' noun -> EmptyT
+  * noun 'from' noun -> Empty reverse;
+
+Extend 'lock' first
+  * noun -> Lock;
+
+Extend 'look'
+  * 'into' noun -> Search
+  * 'behind'/'under' noun -> LookUnder;
+
+Extend 'read' first
+  * noun -> Read;
+
+Extend only 'say' first
+  * topic -> Say;
+
+Extend only 'screw' replace
+  * noun -> Screw
+  * noun 'with' noun -> Screw
+  * 'in' noun  -> Screw
+  * 'in' noun 'with' noun -> Screw
+  * noun 'off'/'out' -> Unscrew
+  * noun 'off'/'out' 'with' noun -> Unscrew
+  * 'off'/'out' noun -> Unscrew
+  * 'off'/'out' noun 'with' noun-> Unscrew;
+
+Extend only 'speak' replace
+  * -> Talk
+  * creature -> Talk
+  * noun -> Talk
+  * 'to'/'with' creature -> Talk
+  * 'to'/'with' noun -> Talk
+  * 'to'/'with' creature 'about' topic -> Ask
+  * 'to'/'with' noun 'about' topic -> Ask;
+
+Extend only 'turn'
+  * noun 'over' -> Turn
+  * 'over' noun -> Turn;
+
+Extend 'unlock' first
+  * noun -> Unlock;
+
+Extend only 'unscrew' replace
+  * noun -> Unscrew
+  * noun 'with' noun -> Unscrew;
+
+Verb meta 'about' 'info'
+  * -> About;
+
+Verb meta 'credits'
+  * -> Credits;
+
+Verb 'drive'
+  * noun -> Drive;
+
+Verb meta 'help' 'instructions'
+  * -> Help;
+
+Verb 'fire'
+  * held -> Fire
+  * held 'at' noun -> Shoot reverse
+  * 'at' noun 'with' held -> Shoot;
+
+Verb ',eject'
+  * noun -> Eject;
+Verb ',play'
+  * noun -> Play;
+Verb ',rewind'
+  * noun -> Rewind;
+
+Verb 'hint' 'clue'
+  * -> Hint;
+
+Verb 'inspect' = 'examine';
+
+Verb 'kick' = 'attack';
+
+Verb 'load'
+  * noun -> Load
+  * noun 'with' held -> Load;
+
+Verb 'pour' = 'empty';
+
+Verb 'lower'
+  * -> Lower
+  * noun -> Lower;
+
+Verb 'raise'
+  * -> Raise
+  * noun -> Raise;
+
+Verb 'shoot'
+  * -> Shoot
+  * noun -> Shoot
+  * noun 'with' held -> Shoot
+  * 'at' noun -> Shoot
+  * 'at' noun 'with' held -> Shoot
+  * held 'at' noun -> Shoot reverse;
+
+Verb 'spray' 'lubricate' 'moisten' 'squirt'
+  * -> Spray
+  * noun -> Spray
+  * noun 'with' noun -> Spray
+  * noun 'on'/'onto' noun -> Spray reverse;
+
+Verb 'talk' 'babble' 'chat' 'communicate' 'converse' 'gab' 'gossip'
+  * -> Talk
+  * creature -> Talk
+  * noun -> Talk
+  * 'to'/'with' creature -> Talk
+  * 'to'/'with' noun -> Talk
+  * 'to'/'with' creature 'about' topic -> Ask
+  * 'to'/'with' noun 'about' topic -> Ask;
+
+Verb 'replace'
+  * noun -> Replace;
+
+Verb 'use'
+  * noun -> Use;
+
+Verb 'xyzzy' 'plover' 'plugh' 'yoho'
+  * -> MagicWord;
+
+!========================================
+! Actions
+!========================================
+[ AboutSub;
+  print "This game is an adaptation of the Italian adventure 'Murray Shannon: I Semi del Male' by Bonaventura Di Bello. It was originally written using The Quill and Illustrator and published by Edizioni Hobby S.r.l. on the cover tape of 'Viking', no. 1, January 1987 for ZX Spectrum and C64.^^The data was extracted from the C64 version using UnQuill, translated to English and rewritten for a modern audience with the original author's permission. The new version includes many enhancements that weren't in the original. The coding was done using Inform 6 and the PunyInform library.^^";
+  <<Credits>>;
+];
+
+[ AskAboutSub x count npc;
+  objectloop (x in location && x has animate && x ~= player)
+  {
+    count++;
+    npc = x;
+  }
+  if (count == 0)
+    "There's no one here to answer your questions.";
+  if (count == 1)
+    <<Ask npc noun>>;
+  "As there are multiple characters here, you'll have to specify who to ask, e.g. ASK MAN ABOUT DOG.";
+];
+
+[ CreditsSub;
+  "Original concept, game design and coding by Bonaventura Di Bello.^English translation and game skeleton by Garry Francis.^Game redesign and coding by Gianluca Girelli.^Play testing by Robert Eggleston, Garry Francis, Kozelek+, Piergiorgio d'Errico, Allyson Gray, John Dennis and RJ Kowalski.";
+];
+
+[ CountSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  if (noun has pluralname)
+    "There's more than one.";
+  "There's only one.";
+];
+
+[ EjectSub;
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  "You can't eject ", (ThatOrThose)noun, ".";
+];
+
+[ FireSub;
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  "You'll have to tell me what to fire at.";
+];
+
+!Delete GoSub if diagonal directions are used
+[ GoSub _prop;
+  if (selected_direction == ne_to or nw_to or se_to or sw_to)
+    "There are no diagonal directions in this game.";
+  _prop = selected_direction;
+#Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
+  if (_prop == 0)
+    return _RunTimeError(ERR_INVALID_DIR_PROP);
+#Endif;
+  return GoDir(_prop);
+];
+
+[ DriveSub;
+  "You can't drive ", (ThatOrThose)noun, ".";
+];
+
+[ HelpSub;
+  "Tell me what to do using simple commands starting with a verb.^^Use LOOK (or L) to refresh the location description. Identify all the objects in the description and EXAMINE (or X) each one. Read responses carefully for hints.^^Use compass directions (N, S, E, W, U and D) to move around. Draw a map as you go.^^Use GET or TAKE to take objects and DROP to drop them again. Use WEAR to wear things like clothing and REMOVE to remove anything that's currently worn. Use INVENTORY (or I) to see what you're carrying and wearing.^^Use AGAIN (or G) to repeat the last command.^^Use UNDO to undo the last command if you make a mistake.^^Use SAVE to save the game and RESTORE to restore it again.^^There are over 100 verbs that you can use, so if something doesn't work, try a different verb or a different way of doing things. Use HINT if you get stuck.^^For full instructions, see the game page at <https://bdb-project.itch.io/seeds-of-evil>.";
+];
+
+[ HintSub;
+  "Examine everything you find and draw a map.";
+];
+
+[ LoadSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  "That would be a neat trick.";
+];
+
+[ LockSub k;
+  if (ObjectIsUntouchable(noun))
+    return;
+  if (noun hasnt lockable)
+  {
+    PrintMsg(MSG_LOCK_NOT_A_LOCK, 'lock');
+    rtrue;
+  }
+  if (noun has locked)
+  {
+    PrintMsg(MSG_LOCK_ALREADY_LOCKED);
+    rtrue;
+  }
+  if (noun has open)
+  {
+    PrintMsg(MSG_LOCK_CLOSE_FIRST);
+    rtrue;
+  }
+  k = RunRoutines(noun, with_key);
+  if (k == nothing)
+    "You can't see how to lock ", (ItOrThem)noun, ".";
+  if (second == nothing && k ~= nothing && k in player)
+  {
+    second = k;
+    print "(with ", (the)second, ")^";
+  }
+  if (second == nothing)
+    "You don't have the key.";
+  if (second ~= k)
+  {
+    PrintMsg(MSG_LOCK_KEY_DOESNT_FIT);
+    rtrue;
+  }
+  give noun locked;
+  run_after_routines_msg = MSG_LOCK_DEFAULT;
+  run_after_routines_arg_1 = 'lock';
+];
+
+[ LookUnderSub;
+  if (location == thedark)
+    "But it's dark.";
+  "You find nothing of interest.";
+];
+
+[ MagicWordSub;
+  "Your cousin Alan comes out of nowhere and starts dancing like a puppet when its master starts pulling the strings. Then, just as suddenly as he came, he disappears.";
+];
+
+[ PlaySub;
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  "You can't play ", (ThatOrThose)noun, ".";
+];
+
+[ PourSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  if (parent(noun) hasnt container)
+    "You can't pour ", (ThatOrThose)noun, ".";
+  <<Empty (parent(noun))>>;
+];
+
+[ PourTSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  if (parent(noun) hasnt container)
+    "You can't pour ", (ThatOrThose)noun, ".";
+  if (ObjectIsUntouchable(second))
+    return;
+  <<EmptyT (parent(noun)) second>>;
+];
+
+[ RaiseSub;
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  "You can't raise ", (ThatOrThose)noun, ".";
+];
+
+[ LowerSub;
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  "You can't lower ", (ThatOrThose)noun, ".";
+];
+
+[ ReadSub;
+  if (ObjectIsUntouchable(noun, true))
+    "I suppose you read tea leaves, too";
+  "There's nothing legible on ", (ThatOrThose)noun, ".";
+];
+
+[ ReplaceSub;
+  "You can't replace ", (ThatOrThose)noun, ".";
+];
+
+[ RewindSub;
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  "You can't rewind ", (ThatOrThose)noun, ".";
+];
+
+[ SaySub i;
+  if (consult_words == 0)
+    "You have nothing to say.";
+  print "~";
+  i = consult_from;
+  print (firstConsultWord)i++;
+  while (i < consult_from + consult_words)
+    print " ", (consultWord)i++;
+  print ".~^^";
+  wn = consult_from;
+  if (consult_words == 1 && NextWord() == 'xyzzy' or 'plover' or 'plugh' or 'yoho')
+    <<MagicWord>>;
+  if (AfterRoutines())
+    return;
+  "Nothing happens.";
+];
+
+[ ScrewSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  "You can't screw ", (ThatOrThose)noun, ".";
+];
+
+[ ShootSub;
+  if (noun == nothing)
+    "You point your finger in the air and say, ~Bang!~";
+  if (ObjectIsUntouchable(noun))
+    rtrue;
+  if (CantBeShot())
+    rtrue;
+  if (noun == player)
+    "Are you feeling suicidal?";
+  "You can't just go around shooting things arbitrarily. Choose your target carefully or it might get you killed.";
+];
+
+[ SpraySub;
+  if (noun == nothing)
+    "You'll have to tell me what to ", (address)verb_word, ".";
+  if (second == nothing)
+  {
+    if (TestScope(wd40) && ~~ObjectIsUntouchable(wd40, true))
+    {
+      second = wd40;
+      print "(with the can of WD-40)^";
+    }
+    else
+      "You'll have to tell me what to ", (address)verb_word, " ", (ItOrThem)noun, " with.";
+  }
+  if (second ~= wd40)
+    "You can't ", (address)verb_word, " anything with ", (ThatOrThose)second, ".";
+  if (noun == second)
+    "You can't ", (address)verb_word, " it with itself.";
+  if (AfterRoutines() || keep_silent == 1)
+    rtrue;
+  "You ", (address)verb_word, " ", (the)noun, " with ", (the)second, ", but it doesn't do anything.";
+];
+
+[ TalkSub;
+  if (noun == nothing)
+    "You start talking to no one in particular.";
+  if (noun == player)
+    "You start talking to yourself, but it's a one-sided conversation.";
+  if (RunLife(noun, ##Talk))
+    rtrue;
+  print_ret (The)noun, " ", (IsOrAre)noun, " not very talkative.";
+];
+
+[ UnlockSub k;
+  if (ObjectIsUntouchable(noun))
+    return;
+  if (noun hasnt lockable)
+  {
+    PrintMsg(MSG_UNLOCK_NOT_A_LOCK, 'unlock');
+    rtrue;
+  }
+  if (noun hasnt locked)
+  {
+    PrintMsg(MSG_UNLOCK_ALREADY_UNLOCKED, 'unlock');
+    rtrue;
+  }
+  k = RunRoutines(noun, with_key);
+  if (k == nothing)
+    "You can't see how to unlock ", (ItOrThem)noun, ".";
+  if (second == nothing && k ~= nothing && k in player)
+  {
+    second = k;
+    print "(with ", (the)second, ")^";
+  }
+  if (second == nothing)
+    "You don't have the key.";
+  if (second ~= k)
+  {
+    PrintMsg(MSG_UNLOCK_KEY_DOESNT_FIT);
+    rtrue;
+  }
+  give noun ~locked;
+  run_after_routines_msg = MSG_UNLOCK_DEFAULT;
+  run_after_routines_arg_1 = 'unlock';
+];
+
+[ UnscrewSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  "You can't unscrew ", (ThatOrThose)noun, ".";
+];
+
+[ UseSub;
+  if (ObjectIsUntouchable(noun))
+    return;
+  "You'll have to be more explicit than that.";
+];
+
+End;

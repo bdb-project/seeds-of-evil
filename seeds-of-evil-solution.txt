@@ -1,0 +1,125 @@
+The Seeds of Evil
+By Gianluca Girelli
+For Z-code interpreters
+
+Solution by Garry Francis
+----------------------------------------
+This is a minimal solution. You'll need to EXAMINE lots of things for this solution to make sense. Some optional (but significant) commands are shown in parentheses. These can be omitted once you know what to do.
+
+(OUT) (you can't leave until you've read the telegram)
+GET TELEGRAM
+READ IT
+(TURN KEY) (the engine won't start, sounds like a spark plug problem)
+GET KEY
+PULL KNOB
+OUT
+S
+UNLOCK TRUNK WITH KEY
+OPEN IT (you find a kerosene can)
+GET CAN
+CLOSE TRUNK
+E
+E
+D
+GET WD-40
+U
+W
+N
+E
+POUR KEROSENE ON LARVA (it stops pulsating and exposes a revolver)
+GET ALL (sack and revolver taken)
+W
+N
+(N) (you can't get past the dog and it starts coming at you)
+SHOOT DOG WITH REVOLVER (a larva crawls out of it and you shoot that too)
+GET DOG (using the sack like a glove, you put it in the sack)
+W
+OPEN COFFIN (you find a vial and a corpse)
+(X VIAL) (it probably contained poison)
+(X BODY) (it's likely the funeral home's owner, he could have poisoned himself)
+SEARCH BODY (you acquire a key and a note)
+(I) (it was a house key)
+(READ NOTE) (it reveals a lot, he's hidden another note somewhere else in town)
+E
+N
+N
+UNLOCK DOOR WITH HOUSE KEY
+OPEN IT
+W
+W
+GET ALL (shotgun and cartridges taken)
+LOAD SHOTGUN WITH CARTRIDGES (a piece of paper falls to the ground)
+(GET PAPER)
+(READ IT) (this explains a lot)
+E
+E
+S
+W
+SHOOT LOOTERS (you miss, but hit a shelf which falls and knocks out the looters)
+(L) (you find a broken shelf and a 9-volt battery)
+GET BATTERY
+E
+N
+N
+E
+DROP DOG
+E
+S
+E
+U
+SEARCH WOMAN (her arm points towards a corner, where you find a filing cabinet)
+(X CABINET) (it's closed)
+OPEN CABINET (you find a cassette player and a cassette)
+GET ALL FROM CABINET (cassette player and cassette taken)
+(X CASSETTE) (it's a C90 cassette with two sides labelled Side A and Side B)
+(X SIDE A) (it's labelled 'play me first')
+(X SIDE B) (it's labelled 'surveillance system disabler')
+(PUT CASSETTE IN PLAYER) (specify side A or side B)
+PUT SIDE A IN PLAYER
+(X PLAYER) (it has three buttons labelled PLAY, REWIND and EJECT)
+(PRESS PLAY) (it needs a battery)
+PUT BATTERY IN PLAYER
+PRESS PLAY (woman explains the alien invasion and how to use side B)
+TURN CASSETTE (don't play it yet, if you do, PRESS REWIND to rewind it)
+D
+W
+N
+W
+W
+S
+E
+GET ALL (axe and pliers taken)
+W
+S
+(X SHUTTER) (it's rusted shut)
+SPRAY WD-40 ON SHUTTER (you're now able to raise it)
+E
+(GET SPARK PLUG) (it's tightly screwed)
+(UNSCREW IT WITH PLIERS) (it's too tight)
+SPRAY WD-40 ON SPARK PLUG (you can now unscrew it)
+UNSCREW SPARK PLUG WITH PLIERS (you acquire it)
+W
+S
+E
+(BREAK DOOR WITH AXE) (you're repelled by the security system)
+PRESS PLAY (security system is now disabled)
+SMASH DOOR WITH AXE (you smash it open)
+E
+GET LETTER
+READ IT (he was conned by aliens, then infected by them, they must be hiding)
+SMASH EQUIPMENT WITH AXE (you destroy it and kill the larvae)
+W
+W
+S
+S
+W
+N
+OPEN HOOD
+REPLACE FAULTY PLUG
+CLOSE HOOD
+S
+IN
+PUT CAR KEY IN IGNITION
+TURN IT
+DRIVE CAR (as you drive off, you decide to create ReSAT to detect alien threats)
+***THE END***
